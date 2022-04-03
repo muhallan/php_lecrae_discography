@@ -1,0 +1,32 @@
+{
+  "name": "php_lecrae_discography",
+  "version": "1.0.0",
+  "description": "Lecrae Moore's discography app",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon --inspect",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/muhallan/php_lecrae_discography.git"
+  },
+  "keywords": [
+    "Lecrae",
+    "Mongoose",
+    "Node",
+    "Express",
+    "Personal_hobby_project"
+  ],
+  "author": "Allan Muhwezi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/muhallan/php_lecrae_discography/issues"
+  },
+  "homepage": "https://github.com/muhallan/php_lecrae_discography#readme",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "mongoose": "^6.2.9"
+  }
+}
