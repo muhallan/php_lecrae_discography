@@ -32,6 +32,77 @@ const makeAllSongsResponse = (err, album, response, res) => {
     res.status(response.status).json(response.message);
 };
 
+const addOne = (req, res) => {
+    const albumId = req.params.albumId;
+
+    const response = {
+        status: 200,
+        message: {}
+    };
+
+    if (!mongoose.isValidObjectId(albumId)) {
+        response.status = 400;
+        response.message = {message: "Invalid album ID provided"};
+    } else {
+        Album.findById(albumId).select('songs').exec((err, album) => fetchAlbumCallback(err, album, albumId, req, res, response));
+    }
+    if (response.status !== 200) {
+        res.status(response.status).json(response.message);
+    }
+};
+
+const fetchAlbumCallback = (err, album, albumId, req, res) => {
+    const response = {
+        status: 200,
+        message: {}
+    };
+    if (err) {
+        response.status = 500;
+        response.message = {error: err};
+    } else if (!album) {
+        response.status = 401;
+        response.message = {message: "Album with id " + albumId + " not found"};   
+    } else {
+        _addSong(req, res, album, response);
+    }
+    if (response.status !== 200) {
+        res.status(response.status).json(response.message);
+    }
+};
+
+const _addSong = (req, res, album, response) => {
+    let newSong = {};
+    if (req.body && req.body.name && req.body.writers) {
+        const writers = req.body.writers;
+        if (!Array.isArray(writers) || !writers.length) {
+            response.status = 400;
+            response.message = {message: "Writers must be provided as an array of strings"};
+        } else {
+            newSong.name = req.body.name;
+            newSong.writers = req.body.writers;
+            album.songs.push(newSong);
+
+            album.save((err, updatedAlbum) => saveAlbumCallback(err, res, updatedAlbum, response));
+        }
+    } else {
+        response.status = 500;
+        response.message = {message: "Incomplete data provided. A song requires a name and writers"};
+    }
+    
+};
+
+const saveAlbumCallback = (err, res, updatedAlbum, response) => {
+    if (err) {
+        response.status = 500;
+        response.message = {error: err};
+    } else {
+        response.status = 201;
+        response.message = updatedAlbum.songs;
+    }
+    res.status(response.status).json(response.message);
+};
+
 module.exports = {
-    getAll
+    getAll, 
+    addOne
 }
