@@ -18,7 +18,8 @@ router.route("/albums/:albumId/songs")
 
 router.route("/albums/:albumId/songs/:songId")
     .get(songsController.getOne)
-    .delete(songsController.deleteOne);
+    .delete(songsController.deleteOne)
+    .put(songsController.updateOne);
     
 
 module.exports = router;

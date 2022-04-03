@@ -210,9 +210,87 @@ const saveAlbumDeleteSongCallback = (err, res) => {
     res.status(response.status).json(response.message);
 };
 
+const updateOne = (req, res) => {
+    const albumId = req.params.albumId;
+    const songId = req.params.songId;
+
+    const response = {
+        status: 200,
+        message: {}
+    };
+
+    if (!mongoose.isValidObjectId(albumId)) {
+        response.status = 400;
+        response.message = {message: "Invalid album ID provided"};
+    } else if (!mongoose.isValidObjectId(songId)) {
+        response.status = 400;
+        response.message = {message: "Invalid song ID provided"};
+    } else {
+        Album.findById(albumId).select("songs").exec((err, album) => getAlbumSongForUpdateCallback(err, album, res, req, albumId, songId));
+    }
+    if (response.status !== 200) {
+        res.status(response.status).json(response.message);
+    }
+};
+
+const getAlbumSongForUpdateCallback = (err, album, res, req, albumId, songId) => {
+    const response = {
+        status: 200,
+        message: {}
+    };
+
+    if (err) {
+        response.status = 500;
+        response.message = {error: err};
+    } else if (!album) {
+        response.status = 404;
+        response.message = {message: "Album with id " + albumId + " not found"};
+    } else {
+        const song = album.songs.id(songId);
+        if (!song) {
+            response.status = 404;
+            response.message = {message: "Song with id " + songId + " not found"};
+        } else {
+            _updateSong(req, res, album, song, songId, response);
+        }
+    }
+    if (response.status !== 200) {
+        res.status(response.status).json(response.message);
+    }
+};
+
+const _updateSong = (req, res, album, song, songId, response) => {
+    if (req.body && req.body.name && req.body.writers) {
+        const writers = req.body.writers;
+        if (!Array.isArray(writers) || !writers.length) {
+            response.status = 400;
+            response.message = {message: "Writers must be provided as an array of strings"};
+        } else {
+            song.name = req.body.name;
+            song.writers = req.body.writers;
+            album.save((err, updatedAlbum) => saveAlbumSongUpdateCallback(err, res, updatedAlbum, songId, response));
+        }
+    } else {
+        response.status = 500;
+        response.message = {message: "Incomplete data provided. A song requires a name and writers"};
+    }
+}
+
+const saveAlbumSongUpdateCallback = (err, res, updatedAlbum, songId, response) => {
+    if (err) {
+        response.status = 500;
+        response.message = {error: err};
+    } else {
+        response.status = 200;
+        response.message = updatedAlbum.songs.id(songId);
+    }
+    res.status(response.status).json(response.message);
+};
+
 module.exports = {
     getAll, 
     addOne,
     getOne,
-    deleteOne
+    deleteOne,
+    updateOne
 }
