@@ -103,17 +103,17 @@ const getOne = (req, res) => {
         response.message = {message: "Invalid album ID provided"};
         res.status(response.status).json(response.message);
     } else {
-        Album.findById(albumId).exec((err, album) => makeSingleAlbumResponse(err, album, response, res));
+        Album.findById(albumId).exec((err, album) => makeSingleAlbumResponse(err, album, response, res, albumId));
     }
 
 }
 
-const makeSingleAlbumResponse = (err, album, response, res) => {
+const makeSingleAlbumResponse = (err, album, response, res, albumId) => {
     if (err) {
         response.status = 500;
         response.message = {error: err};
     } else if (!album) {
-        response.status = 401;
+        response.status = 404;
         response.message = {message: "Album with id " + albumId + " not found"};
     } else {
         response.status = 200;

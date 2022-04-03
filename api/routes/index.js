@@ -14,6 +14,9 @@ router.route("/albums/:albumId")
 router.route("/albums/:albumId/songs")
     .get(songsController.getAll)
     .post(songsController.addOne);
+
+router.route("/albums/:albumId/songs/:songId")
+    .get(songsController.getOne);
     
 
 module.exports = router;

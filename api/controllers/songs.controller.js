@@ -23,7 +23,7 @@ const makeAllSongsResponse = (err, album, response, res) => {
         response.status = 500;
         response.message = {error: err};
     } else if (!album) {
-        response.status = 401;
+        response.status = 404;
         response.message = {message: "Album with id " + albumId + " not found"};
     } else {
         response.status = 200;
@@ -60,7 +60,7 @@ const fetchAlbumCallback = (err, album, albumId, req, res) => {
         response.status = 500;
         response.message = {error: err};
     } else if (!album) {
-        response.status = 401;
+        response.status = 404;
         response.message = {message: "Album with id " + albumId + " not found"};   
     } else {
         _addSong(req, res, album, response);
@@ -102,7 +102,52 @@ const saveAlbumCallback = (err, res, updatedAlbum, response) => {
     res.status(response.status).json(response.message);
 };
 
+
+const getOne = (req, res) => {
+    const albumId = req.params.albumId;
+    const songId = req.params.songId;
+
+    const response = {
+        status: 200,
+        message: {}
+    };
+
+    if (!mongoose.isValidObjectId(albumId)) {
+        response.status = 400;
+        response.message = {message: "Invalid album ID provided"};
+    } else if (!mongoose.isValidObjectId(songId)) {
+        response.status = 400;
+        response.message = {message: "Invalid song ID provided"};
+    } else {
+        Album.findById(albumId).select("songs").exec((err, album) => getAlbumSongCallback(err, album, res, response, albumId, songId));
+    }
+    if (response.status !== 200) {
+        res.status(response.status).json(response.message);
+    }
+};
+
+const getAlbumSongCallback = (err, album, res, response, albumId, songId) => {
+    if (err) {
+        response.status = 500;
+        response.message = {error: err};
+    } else if (!album) {
+        response.status = 404;
+        response.message = {message: "Album with id " + albumId + " not found"};
+    } else {
+        const song = album.songs.id(songId);
+        if (!song) {
+            response.status = 404;
+            response.message = {message: "Song with id " + songId + " not found"};
+        } else {
+            response.status = 200;
+            response.message = song;
+        }
+    }
+    res.status(response.status).json(response.message);
+}
+
 module.exports = {
     getAll, 
-    addOne
+    addOne,
+    getOne
 }
