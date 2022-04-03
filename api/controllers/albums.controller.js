@@ -90,7 +90,40 @@ const makeCreateAlbumResponse = (err, album, response, res) => {
     res.status(response.status).json(response.message);
 }
 
+const getOne = (req, res) => {
+    const albumId = req.params.albumId;
+    
+    const response = {
+        status: 200,
+        message: {}
+    };
+
+    if (!mongoose.isValidObjectId(albumId)) {
+        response.status = 400;
+        response.message = {message: "Invalid album ID provided"};
+        res.status(response.status).json(response.message);
+    } else {
+        Album.findById(albumId).exec((err, album) => makeSingleAlbumResponse(err, album, response, res));
+    }
+
+}
+
+const makeSingleAlbumResponse = (err, album, response, res) => {
+    if (err) {
+        response.status = 500;
+        response.message = {error: err};
+    } else if (!album) {
+        response.status = 401;
+        response.message = {message: "Album with id " + albumId + " not found"};
+    } else {
+        response.status = 200;
+        response.message = album;
+    }
+    res.status(response.status).json(response.message);
+}
+
 module.exports = {
     getAll,
-    addOne
+    addOne,
+    getOne
 }
