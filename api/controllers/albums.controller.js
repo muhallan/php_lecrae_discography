@@ -156,9 +156,77 @@ const deleteAlbumCallback = (err, album, albumId, res) => {
     res.status(response.status).json(response.message);
 }
 
+const updateOne = (req, res) => {
+    const albumId = req.params.albumId;
+    
+    const response = {
+        status: 200,
+        message: {}
+    };
+
+    if (!mongoose.isValidObjectId(albumId)) {
+        response.status = 400;
+        response.message = {message: "Invalid album ID provided"};
+    } else {
+        Album.findById(albumId).exec((err, album) => getAlbumForUpdate(err, album, req, res, albumId));
+    }
+    if (response.status !== 200) {
+        res.status(response.status).json(response.message);
+    }
+}
+
+const getAlbumForUpdate = (err, album, req, res, albumId) => {
+    const response = {
+        status: 200,
+        message: {}
+    };
+    if (err) {
+        response.status = 500;
+        response.message = {error: err};
+    } else if (!album) {
+        response.status = 404;
+        response.message = {message: "Album with id " + albumId + " not found"};
+    } else {
+        if (req.body && req.body.title && req.body.year) {
+            const year = parseInt(req.body.year);
+            const currentYear = new Date().getFullYear();
+            if (isNaN(year)) {
+                response.status = 400;
+                response.message = {message: "year should be a number"};
+            } else if (year < 2004 || year > currentYear) {
+                response.status = 400;
+                response.message = {message: "year should be between 2004 and " + currentYear};
+            } else {
+                album.title = req.body.title;
+                album.year = year;
+                album.save((err, updatedAlbum) => saveAlbumCallback(err, res, updatedAlbum, response));    
+            }
+        } else {
+            response.status = 400;
+            response.message = {message: "Album requires a title and a year"};
+        }
+    }
+    if (response.status !== 200) {
+        res.status(response.status).json(response.message);
+    }
+};
+
+const saveAlbumCallback = (err, res, updatedAlbum, response) => {
+    if (err) {
+        response.status = 500;
+        response.message = {error: err};
+    } else {
+        response.status = 200;
+        response.message = updatedAlbum;
+    }
+    res.status(response.status).json(response.message);
+};
+
+
 module.exports = {
     getAll,
     addOne,
     getOne,
-    deleteOne
+    deleteOne,
+    updateOne
 }

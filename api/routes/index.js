@@ -10,7 +10,8 @@ router.route("/albums")
 
 router.route("/albums/:albumId")
     .get(albumsController.getOne)
-    .delete(albumsController.deleteOne);
+    .delete(albumsController.deleteOne)
+    .put(albumsController.updateOne);
 
 router.route("/albums/:albumId/songs")
     .get(songsController.getAll)
