@@ -9,14 +9,16 @@ router.route("/albums")
     .post(albumsController.addOne);
 
 router.route("/albums/:albumId")
-    .get(albumsController.getOne);
+    .get(albumsController.getOne)
+    .delete(albumsController.deleteOne);
 
 router.route("/albums/:albumId/songs")
     .get(songsController.getAll)
     .post(songsController.addOne);
 
 router.route("/albums/:albumId/songs/:songId")
-    .get(songsController.getOne);
+    .get(songsController.getOne)
+    .delete(songsController.deleteOne);
     
 
 module.exports = router;

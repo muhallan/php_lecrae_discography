@@ -122,8 +122,43 @@ const makeSingleAlbumResponse = (err, album, response, res, albumId) => {
     res.status(response.status).json(response.message);
 }
 
+const deleteOne = (req, res) => {
+    const albumId = req.params.albumId;
+
+    const response = {
+        status: 200,
+        message: {}
+    };
+
+    if (!mongoose.isValidObjectId(albumId)) {
+        response.status = 400;
+        response.message = {message: "Invalid album ID provided"};
+    } else {
+        Album.findByIdAndDelete(albumId).exec((err, album) => deleteAlbumCallback(err, album, albumId, res));
+    }
+    if (response.status !== 200) {
+        res.status(response.status).json(response.message);
+    }
+};
+
+const deleteAlbumCallback = (err, album, albumId, res) => {
+    const response = {};
+    if (err) {
+        response.status = 500;
+        response.message = {error: err};
+    } else if(!album) {
+        response.status = 404;
+        response.message = {message: "Album with id " + albumId + " not found"};
+    } else {
+        response.status = 200;
+        response.message = {message: "Album deleted successfully"};
+    }
+    res.status(response.status).json(response.message);
+}
+
 module.exports = {
     getAll,
     addOne,
-    getOne
+    getOne,
+    deleteOne
 }

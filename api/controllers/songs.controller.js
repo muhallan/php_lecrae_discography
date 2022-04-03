@@ -146,8 +146,73 @@ const getAlbumSongCallback = (err, album, res, response, albumId, songId) => {
     res.status(response.status).json(response.message);
 }
 
+const deleteOne = (req, res) => {
+    const albumId = req.params.albumId;
+    const songId = req.params.songId;
+
+    const response = {
+        status: 200,
+        message: {}
+    };
+
+    if (!mongoose.isValidObjectId(albumId)) {
+        response.status = 400;
+        response.message = {message: "Invalid album ID provided"};
+    } else if (!mongoose.isValidObjectId(songId)) {
+        response.status = 400;
+        response.message = {message: "Invalid song ID provided"};
+    } else {
+        Album.findById(albumId).select("songs").exec((err, album) => getAlbumSongForDeleteCallback(err, album, res, albumId, songId));
+    }
+    if (response.status !== 200) {
+        res.status(response.status).json(response.message);
+    } 
+};
+
+const getAlbumSongForDeleteCallback = (err, album, res, albumId, songId) => {
+    const response = {
+        status: 200,
+        message: {}
+    };
+
+    if (err) {
+        response.status = 500;
+        response.message = {error: err};
+    } else if (!album) {
+        response.status = 404;
+        response.message = {message: "Album with id " + albumId + " not found"};
+    } else {
+        const song = album.songs.id(songId);
+        if (!song) {
+            response.status = 404;
+            response.message = {message: "Song with id " + songId + " not found"};
+        } else {
+            let songs = album.songs;
+            songs = songs.filter(aSong => aSong.id !== songId);
+            album.songs = songs;
+            album.save((err, updatedAlbum) => saveAlbumDeleteSongCallback(err, res));
+        }
+    }
+    if (response.status !== 200) {
+        res.status(response.status).json(response.message);
+    }
+}
+
+const saveAlbumDeleteSongCallback = (err, res) => {
+    const response = {};
+    if (err) {
+        response.status = 500;
+        response.message = {error: err};
+    } else {
+        response.status = 200;
+        response.message = {message: "Song removed successfully"};
+    }
+    res.status(response.status).json(response.message);
+};
+
 module.exports = {
     getAll, 
     addOne,
-    getOne
+    getOne,
+    deleteOne
 }
