@@ -11,7 +11,8 @@ router.route("/albums")
 router.route("/albums/:albumId")
     .get(albumsController.getOne)
     .delete(albumsController.deleteOne)
-    .put(albumsController.updateOne);
+    .put(albumsController.fullUpdateOne)
+    .patch(albumsController.partialUpdateOne);
 
 router.route("/albums/:albumId/songs")
     .get(songsController.getAll)
@@ -20,7 +21,8 @@ router.route("/albums/:albumId/songs")
 router.route("/albums/:albumId/songs/:songId")
     .get(songsController.getOne)
     .delete(songsController.deleteOne)
-    .put(songsController.updateOne);
+    .put(songsController.fullUpdateOne)
+    .patch(songsController.partialUpdateOne);
     
 
 module.exports = router;

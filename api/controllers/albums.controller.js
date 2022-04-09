@@ -55,19 +55,22 @@ const addOne = (req, res) => {
     if (req.body && req.body.title && req.body.year) {
         const year = parseInt(req.body.year);
         const currentYear = new Date().getFullYear();
+        const validatedSongs = _getSongsFromBody(req, response);
         if (isNaN(year)) {
             response.status = 400;
             response.message = {message: "year should be a number"};
         } else if (year < 2004 || year > currentYear) {
             response.status = 400;
             response.message = {message: "year should be between 2004 and " + currentYear};
-        } else {
+        } else if (response.status === 200) {
             const newAlbum = {
                 title: req.body.title,
                 year: year,
                 songs: []
             };
-
+            if (validatedSongs) {
+                newAlbum.songs = validatedSongs;
+            }
             Album.create(newAlbum, (err, album) => makeCreateAlbumResponse(err, album, response, res));
         }
     } else {
@@ -156,7 +159,7 @@ const deleteAlbumCallback = (err, album, albumId, res) => {
     res.status(response.status).json(response.message);
 }
 
-const updateOne = (req, res) => {
+const updateOne = (req, res, setAlbumUpdateDetails) => {
     const albumId = req.params.albumId;
     
     const response = {
@@ -168,14 +171,23 @@ const updateOne = (req, res) => {
         response.status = 400;
         response.message = {message: "Invalid album ID provided"};
     } else {
-        Album.findById(albumId).exec((err, album) => getAlbumForUpdate(err, album, req, res, albumId));
+        Album.findById(albumId).exec((err, album) => getAlbumForUpdate(err, album, req, res, albumId, setAlbumUpdateDetails));
     }
     if (response.status !== 200) {
         res.status(response.status).json(response.message);
     }
 }
 
-const getAlbumForUpdate = (err, album, req, res, albumId) => {
+
+const fullUpdateOne = (req, res) => {
+    updateOne(req, res, setFullAlbumUpdateDetails);
+}
+
+const partialUpdateOne = (req, res) => {
+    updateOne(req, res, setPartialAlbumUpdateDetails);
+};
+
+const getAlbumForUpdate = (err, album, req, res, albumId, setAlbumUpdateDetails) => {
     const response = {
         status: 200,
         message: {}
@@ -187,7 +199,81 @@ const getAlbumForUpdate = (err, album, req, res, albumId) => {
         response.status = 404;
         response.message = {message: "Album with id " + albumId + " not found"};
     } else {
-        if (req.body && req.body.title && req.body.year) {
+        setAlbumUpdateDetails(req, album, response);
+
+        if (response.status === 200) {
+            album.save((err, updatedAlbum) => saveAlbumCallback(err, res, updatedAlbum, response));
+        }
+    }
+    if (response.status !== 200) {
+        res.status(response.status).json(response.message);
+    }
+};
+
+const setFullAlbumUpdateDetails = (req, album, response) => {
+    if (req.body && req.body.title && req.body.year) {
+        const year = parseInt(req.body.year);
+        const currentYear = new Date().getFullYear();
+        if (isNaN(year)) {
+            response.status = 400;
+            response.message = {message: "year should be a number"};
+        } else if (year < 2004 || year > currentYear) {
+            response.status = 400;
+            response.message = {message: "year should be between 2004 and " + currentYear};
+        } else {
+            album.title = req.body.title;
+            album.year = year;
+        }
+    } else {
+        response.status = 400;
+        response.message = {message: "Album requires a title and a year"};
+    }
+
+    const validatedSongs = _getSongsFromBody(req, response);
+    album.songs = validatedSongs;
+};
+
+const _getSongsFromBody = (req, response) => {
+    const isValid = true;
+    const validatedSongs = [];
+    if (req.body && req.body.songs) {
+        const songs = req.body.songs;
+        for (let song of songs) {
+            if (_validateSong(song, response)) {
+                validatedSongs.push(song);
+            } else {
+                isValid = false;
+                break;
+            }
+        }
+    } 
+    if (isValid) {
+        return validatedSongs;
+    }
+    return [];
+}
+
+const _validateSong = (song, response) => {
+    if (song && song.name && song.writers) {
+        const writers = song.writers;
+        if (!Array.isArray(writers) || !writers.length) {
+            response.status = 400;
+            response.message = {message: "Writers must be provided as an array of strings"};
+            return false;
+        }
+    } else {
+        response.status = 500;
+        response.message = {message: "Incomplete data provided. A song requires a name and writers"};
+        return false;
+    }
+    return true;
+}
+
+const setPartialAlbumUpdateDetails = (req, album, response) => {
+    
+    if (req.body) {
+        album.title = req.body.title || album.title;
+        if (req.body.year) {
             const year = parseInt(req.body.year);
             const currentYear = new Date().getFullYear();
             if (isNaN(year)) {
@@ -197,17 +283,16 @@ const getAlbumForUpdate = (err, album, req, res, albumId) => {
                 response.status = 400;
                 response.message = {message: "year should be between 2004 and " + currentYear};
             } else {
-                album.title = req.body.title;
                 album.year = year;
-                album.save((err, updatedAlbum) => saveAlbumCallback(err, res, updatedAlbum, response));    
             }
-        } else {
-            response.status = 400;
-            response.message = {message: "Album requires a title and a year"};
         }
-    }
-    if (response.status !== 200) {
-        res.status(response.status).json(response.message);
+        const validatedSongs = _getSongsFromBody(req, response);
+        if (validatedSongs) {
+            album.songs = validatedSongs;
+        }
+    } else {
+        response.status = 400;
+        response.message = {message: "No JSON body provided"};
     }
 };
 
@@ -228,5 +313,6 @@ module.exports = {
     addOne,
     getOne,
     deleteOne,
-    updateOne
+    fullUpdateOne,
+    partialUpdateOne
 }
