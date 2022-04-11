@@ -1,0 +1,43 @@
+<app-header [display]="enableSearch"></app-header>
+<div ui-view="header" autoscroll="true" class="row justify-content-center" style="margin-top: 40px;">
+    <div class="col-md-8 col-md-offset-2">  
+      <div class="album">
+        <h1>{{album.title}}</h1>
+        <div class="year">Released in {{album.year}}</div>
+        <div class="items" *ngIf='songs && songs.length; else elseBlock'>
+            <ul id="sortable" class="list-unstyled">
+              <li class="ui-state-default" *ngFor="let song of songs; let num = index">
+                  <div>
+                    <h4>
+                      <span >{{calcIndex + num + 1}}.</span>&nbsp; {{song.name}}
+                      <a (click)="confirmDeleteSong(song._id)"><span class="pull-right fa fa-remove"></span></a>
+                      <a (click)="editSong(song)"><span class="fa fa-edit pull-right" style="margin-right: 15px;"></span></a>
+                    </h4>
+                    <div class="writers">
+                      <span *ngFor="let writer of song.writers; let isLast = last">
+                        {{writer}}{{isLast ? '' : ', '}}
+                      </span>
+                    </div>
+                  </div>
+              </li>
+            </ul>
+        </div>
+        <!-- block to show the image and message when the bucket has no items -->
+        <ng-template #elseBlock>
+            <div class="no-songs">
+              <p>No songs in the album.</p>
+            </div>
+        </ng-template> 
+      </div>
+      <div class="row" style="margin-top: 30px;">
+        <div class="col">
+          <button (click)="onBack()" class="btn btn-primary">Back</button>
+        </div>
+        <div class="col">
+          <button (click)="addSong(album._id)" class="btn btn-primary">Add Song</button>
+        </div>
+      </div>
+    </div>
+    
+  
+</div>

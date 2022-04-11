@@ -1,0 +1,31 @@
+.card-title {
+    margin-left: 10px;
+}
+.card-text-year {
+    font-size: 20px;
+}
+.card-text-songs {
+    font-size: 18px;
+}
+a.special_btn:hover {
+    -webkit-transform: scale(1.1);
+    -moz-transform: scale(1.1);
+    -o-transform: scale(1.1);
+}
+a.special_btn {
+    width: 90px;
+    color: #fff !important;
+    -webkit-transform: scale(0.8);
+    -moz-transform: scale(0.8);
+    -o-transform: scale(0.8);
+    -webkit-transition-duration: 0.5s;
+    -moz-transition-duration: 0.5s;
+    -o-transition-duration: 0.5s;
+}
+.card-link {
+    text-decoration: none;
+}
+.heading {
+    font-size: 24px;
+    
+}

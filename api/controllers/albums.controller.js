@@ -11,12 +11,16 @@ const getAll = (req, res) => {
         status: 200,
         message: {}
     };
+    let query = {};
 
     if (req.query && req.query.count) {
         count = parseInt(req.query.count);
     }
     if (req.query && req.query.offset) {
         offset = parseInt(req.query.offset);
+    }
+    if (req.query && req.query.q) {
+        query = {title: new RegExp(`^${req.query.q}$`, "i")};
     }
 
     if (isNaN(count) || isNaN(offset)) {
@@ -30,7 +34,7 @@ const getAll = (req, res) => {
     if (response.status !== 200) {
         res.status(response.status).json(response.message);
     } else {
-        Album.find().skip(offset).limit(count).exec((err, albums) => makeAllAlbumsResponse(err, albums, response, res));
+        Album.find(query).skip(offset).limit(count).exec((err, albums) => makeAllAlbumsResponse(err, albums, response, res));
     }
 };
 
@@ -287,7 +291,7 @@ const setPartialAlbumUpdateDetails = (req, album, response) => {
             }
         }
         const validatedSongs = _getSongsFromBody(req, response);
-        if (validatedSongs) {
+        if (validatedSongs && validatedSongs.length) {
             album.songs = validatedSongs;
         }
     } else {

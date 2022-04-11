@@ -1,0 +1,35 @@
+.album h1{
+    margin: 0;
+    padding: 40px 20px 5px;
+}
+
+.album .year {
+    padding: 5px 0px 10px 20px;
+    font-size: 18px;
+}
+
+.writers {
+    padding-left: 30px;
+}
+
+.album h4 {
+    margin: 20px 0 10px; 
+}
+
+li.ui-state-default{
+    background:#fff;
+    border:none;
+    border-bottom:1px solid #ddd;
+}
+
+li.ui-state-default:last-child{
+    border-bottom:none;
+}
+
+.no-songs {
+    margin: 80px 0;
+}
+
+li {
+    padding: 5px 0;
+}
