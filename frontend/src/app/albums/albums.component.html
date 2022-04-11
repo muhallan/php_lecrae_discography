@@ -1,0 +1,40 @@
+<app-header [display]="enableSearch" (search_query)="searchAlbums($event)"></app-header>
+<header style="margin-top: 75px; margin-left: 40px;">
+  <section class="heading">
+      Lecrae's discography showing his albums and the list of songs in each album.
+  </section>
+</header>
+<div style="margin-top: 40px;" class="col-sm-9 center-block">
+    <div *ngIf='albums && albums.length; else elseBlock'>
+        <div class="row d-flex flex-row card border-primary" style="margin: 20px;" *ngFor="let album of albums">
+            <div class="col">
+                <a class="card-link h4" routerLink="/albums/{{album._id}}">{{album.title}}</a>
+                <div class="card-text-year">
+                    {{album.year }}
+                </div>
+                <div class="card-text-songs">
+                    {{album.songs.length == 0 ? 'No' : album.songs.length }} {{album.songs.length == 1 ? 'song' : 'songs' }}
+                </div>
+            </div>
+            <div class="col-2 align-items-end align-self-center" style="padding-left: 50px;">
+                <a (click)="editAlbum(album)" class="special_btn btn btn-primary a-btn-slide-text" >
+                    <span class="fa fa-edit" aria-hidden="true"></span>
+                    <span>Edit</span>            
+                </a>
+                <a (click)="confirmDelete(album._id)" class="special_btn btn btn-primary a-btn-slide-text">
+                    <span class="fa fa-remove" aria-hidden="true"></span>
+                    <span>Delete</span>            
+                </a>
+            </div>
+        </div>
+    </div>
+    <ng-template #elseBlock>
+        <div class="text-center" style="margin-top: 15px;">
+          <p>{{ empty_message }}</p>
+        </div>
+    </ng-template> 
+
+    <div class="text-center">
+        <button (click)="addAlbum()" class="btn btn-primary">Add Album</button>
+    </div>
+</div>

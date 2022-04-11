@@ -1,0 +1,24 @@
+<header>
+    <!-- the navigation bar -->
+   <nav class="navbar fixed-top navbar-expand-lg navbar-dark navbar-inverse bg-primary">
+     <a class="navbar-brand" href="#">
+        {{pageTitle}}
+     </a>
+     <div class="collapse navbar-collapse" id="nav-content">
+       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+         <li class="nav-item active">
+           <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+         </li>
+       </ul>
+        <form class="ms-auto navbar-nav" *ngIf="display">
+          <input class="form-control mr-sm-2" 
+          name="search" 
+          [(ngModel)]="search_value" 
+          #search="ngModel" 
+          type="text" placeholder="Search albums" aria-label="Search">
+          <button class="btn outline btn-primary my-2 my-sm-0" (click)="performSearch()" type="submit">Search</button>
+        </form>
+     </div>
+   </nav>
+ </header>
+  

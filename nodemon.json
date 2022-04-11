@@ -1,4 +1,5 @@
 {
+    "ignore": ["frontend/*"],
     "verbose": true,
     "signal": "SIGHUP",
     "env": {

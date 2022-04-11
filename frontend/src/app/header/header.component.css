@@ -1,0 +1,32 @@
+.title h1 {
+    text-align: center;
+    margin-left: 25px;
+    color: #fff;
+    padding-top: 10px;
+    font-weight: 400;
+} 
+
+.btn.outline {
+	background: none;
+	padding: 6px;
+}
+
+.btn-primary.outline {
+	border: 2px solid #fff;
+	color: #fff;
+}
+
+.btn-primary.outline:hover, .btn-primary.outline:focus, .btn-primary.outline:active, .btn-primary.outline.active, .open > .dropdown-toggle.btn-primary {
+	color: #fff;
+	border-color: #A3AEB1;
+}
+.btn-primary.outline:active, .btn-primary.outline.active {
+	border-color: #565C5E;
+	color: #fff;
+	box-shadow: none;
+}
+
+.navbar {
+	padding-left: 40px;
+	padding-right: 40px;
+}

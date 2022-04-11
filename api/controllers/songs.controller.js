@@ -210,7 +210,15 @@ const saveAlbumDeleteSongCallback = (err, res) => {
     res.status(response.status).json(response.message);
 };
 
-const updateOne = (req, res) => {
+const fullUpdateOne = (req, res) => {
+    updateOne(req, res, setFullSongUpdateDetails);
+};
+
+const partialUpdateOne = (req, res) => {
+    updateOne(req, res, setPartialSongUpdateDetails);
+};
+
+const updateOne = (req, res, setSongUpdateDetails) => {
     const albumId = req.params.albumId;
     const songId = req.params.songId;
 
@@ -226,14 +234,14 @@ const updateOne = (req, res) => {
         response.status = 400;
         response.message = {message: "Invalid song ID provided"};
     } else {
-        Album.findById(albumId).select("songs").exec((err, album) => getAlbumSongForUpdateCallback(err, album, res, req, albumId, songId));
+        Album.findById(albumId).select("songs").exec((err, album) => getAlbumSongForUpdateCallback(err, album, res, req, albumId, songId, setSongUpdateDetails));
     }
     if (response.status !== 200) {
         res.status(response.status).json(response.message);
     }
-};
+}
 
-const getAlbumSongForUpdateCallback = (err, album, res, req, albumId, songId) => {
+const getAlbumSongForUpdateCallback = (err, album, res, req, albumId, songId, setSongUpdateDetails) => {
     const response = {
         status: 200,
         message: {}
@@ -251,7 +259,7 @@ const getAlbumSongForUpdateCallback = (err, album, res, req, albumId, songId) =>
             response.status = 404;
             response.message = {message: "Song with id " + songId + " not found"};
         } else {
-            _updateSong(req, res, album, song, songId, response);
+            _updateSong(req, res, album, song, songId, response, setSongUpdateDetails);
         }
     }
     if (response.status !== 200) {
@@ -259,7 +267,15 @@ const getAlbumSongForUpdateCallback = (err, album, res, req, albumId, songId) =>
     }
 };
 
-const _updateSong = (req, res, album, song, songId, response) => {
+const _updateSong = (req, res, album, song, songId, response, setSongUpdateDetails) => {
+    setSongUpdateDetails(req, song, response);
+
+    if (response.status === 200) {
+        album.save((err, updatedAlbum) => saveAlbumSongUpdateCallback(err, res, updatedAlbum, songId, response));
+    }
+}
+
+const setFullSongUpdateDetails = (req, song, response) => {
     if (req.body && req.body.name && req.body.writers) {
         const writers = req.body.writers;
         if (!Array.isArray(writers) || !writers.length) {
@@ -268,13 +284,31 @@ const _updateSong = (req, res, album, song, songId, response) => {
         } else {
             song.name = req.body.name;
             song.writers = req.body.writers;
-            album.save((err, updatedAlbum) => saveAlbumSongUpdateCallback(err, res, updatedAlbum, songId, response));
         }
     } else {
-        response.status = 500;
+        response.status = 400;
         response.message = {message: "Incomplete data provided. A song requires a name and writers"};
     }
-}
+};
+
+const setPartialSongUpdateDetails = (req, song, response) => {
+    if (req.body) {
+        song.name = req.body.name || song.name;
+
+        if (req.body.writers) {
+            const writers = req.body.writers;
+            if (!Array.isArray(writers) || !writers.length) {
+                response.status = 400;
+                response.message = {message: "Writers must be provided as an array of strings"};
+            } else {
+                song.writers = writers;
+            }
+        }
+    } else {
+        response.status = 400;
+        response.message = {message: "No JSON body provided"};
+    }
+};
 
 const saveAlbumSongUpdateCallback = (err, res, updatedAlbum, songId, response) => {
     if (err) {
@@ -292,5 +326,6 @@ module.exports = {
     addOne,
     getOne,
     deleteOne,
-    updateOne
+    fullUpdateOne,
+    partialUpdateOne
 }

@@ -4,7 +4,10 @@
   "description": "Lecrae Moore's discography app",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon --inspect",
+    "startBackend": "npm start",
+    "startFrontend": "cd frontend && npm start",
+    "startBoth": "npm-run-all --parallel startBackend startFrontend",
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -27,6 +30,7 @@
   "dependencies": {
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
-    "mongoose": "^6.2.9"
+    "mongoose": "^6.2.9",
+    "npm-run-all": "^4.1.5"
   }
 }

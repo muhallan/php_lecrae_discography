@@ -1,0 +1,27 @@
+<app-header [display]="enableSearch"></app-header>
+<div ui-view="header" class="row justify-content-center" style="margin-top: 60px;">
+    <div class="col-md-6">
+        <h2 class="text-center">Add Song to {{albumToEdit.title}}</h2> <br/>
+        <form name="form" #songForm="ngForm" (ngSubmit)="songForm.form.valid && addSong(songForm)" novalidate>
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" name="name" class="form-control" #name="ngModel" [(ngModel)]="song.name" required>
+                <div *ngIf="isFieldValid(name) || songForm.submitted">
+                    <div *ngIf="name.errors && name.errors['required']" class="help-block text-danger">Name is required</div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="writers">Writers (Comma separated)</label>
+                <input type="text" name="writers" class="form-control" #writers="ngModel" [(ngModel)]="song.writers" required>
+                <div *ngIf="isFieldValid(writers) || songForm.submitted">
+                    <div *ngIf="writers.errors && writers.errors['required']" class="help-block text-danger">Writers is required</div>
+                </div>
+            </div>
+            <div class="form-group text-center" style="margin-top: 30px;">
+                <button class="btn btn-primary">Add Song</button>
+                <a [routerLink]="['/albums', albumId]" class="btn btn-link">Cancel</a>
+            </div>
+            <div *ngIf="successfulAdd" class="confirmation">Song has been added successfully.<br/> Add another song, or click Cancel to go back.</div>
+        </form>
+    </div>
+</div>
