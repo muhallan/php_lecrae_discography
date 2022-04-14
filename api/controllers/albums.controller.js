@@ -34,19 +34,22 @@ const getAll = (req, res) => {
     if (response.status !== 200) {
         res.status(response.status).json(response.message);
     } else {
-        Album.find(query).skip(offset).limit(count).exec((err, albums) => makeAllAlbumsResponse(err, albums, response, res));
+        Album.find(query).skip(offset).limit(count).exec()
+            .then((albums) => {
+                makeAllAlbumsResponse(albums, res);
+            })
+            .catch((err) => {
+                makeErrorResponse(err, res);
+            });
     }
 };
 
-const makeAllAlbumsResponse = (err, albums, response, res) => {
-    if (err) {
-        response.status = 500;
-        response.message = {error: err};
-    } else {
-        response.status = 200;
-        response.message = {albums: albums};
-    }
-    res.status(response.status).json(response.message);
+const makeErrorResponse = (err, res) => {
+    res.status(500).json({error: err});
+};
+
+const makeAllAlbumsResponse = (albums, res) => {
+    res.status(200).json({albums: albums});
 };
 
 
@@ -75,7 +78,13 @@ const addOne = (req, res) => {
             if (validatedSongs) {
                 newAlbum.songs = validatedSongs;
             }
-            Album.create(newAlbum, (err, album) => makeCreateAlbumResponse(err, album, response, res));
+            Album.create(newAlbum)
+                .then((album) => {
+                    makeCreateAlbumResponse(album, res);
+                })
+                .catch((err) => {
+                    makeErrorResponse(err, res);
+                });
         }
     } else {
         response.status = 400;
@@ -86,15 +95,8 @@ const addOne = (req, res) => {
     }
 };
 
-const makeCreateAlbumResponse = (err, album, response, res) => {
-    if (err) {
-        response.status = 500;
-        response.message = {error: err};
-    } else {
-        response.status = 201;
-        response.message = album;
-    }
-    res.status(response.status).json(response.message);
+const makeCreateAlbumResponse = (album, res) => {
+    res.status(201).json(album);
 }
 
 const getOne = (req, res) => {
@@ -110,16 +112,20 @@ const getOne = (req, res) => {
         response.message = {message: "Invalid album ID provided"};
         res.status(response.status).json(response.message);
     } else {
-        Album.findById(albumId).exec((err, album) => makeSingleAlbumResponse(err, album, response, res, albumId));
+        Album.findById(albumId).exec()
+            .then((album) => {
+                makeSingleAlbumCallback(album, res, albumId);
+            })
+            .catch((err) => {
+                makeErrorResponse(err, res);
+            });
     }
 
 }
 
-const makeSingleAlbumResponse = (err, album, response, res, albumId) => {
-    if (err) {
-        response.status = 500;
-        response.message = {error: err};
-    } else if (!album) {
+const makeSingleAlbumCallback = (album, res, albumId) => {
+    const response = {};
+    if (!album) {
         response.status = 404;
         response.message = {message: "Album with id " + albumId + " not found"};
     } else {
@@ -141,19 +147,22 @@ const deleteOne = (req, res) => {
         response.status = 400;
         response.message = {message: "Invalid album ID provided"};
     } else {
-        Album.findByIdAndDelete(albumId).exec((err, album) => deleteAlbumCallback(err, album, albumId, res));
+        Album.findByIdAndDelete(albumId).exec()
+            .then((album) => {
+                deleteAlbumCallback(album, res, albumId);
+            })
+            .catch((err) => {
+                makeErrorResponse(err, res);
+            });
     }
     if (response.status !== 200) {
         res.status(response.status).json(response.message);
     }
 };
 
-const deleteAlbumCallback = (err, album, albumId, res) => {
+const deleteAlbumCallback = (album, res, albumId) => {
     const response = {};
-    if (err) {
-        response.status = 500;
-        response.message = {error: err};
-    } else if(!album) {
+    if(!album) {
         response.status = 404;
         response.message = {message: "Album with id " + albumId + " not found"};
     } else {
@@ -175,7 +184,13 @@ const updateOne = (req, res, setAlbumUpdateDetails) => {
         response.status = 400;
         response.message = {message: "Invalid album ID provided"};
     } else {
-        Album.findById(albumId).exec((err, album) => getAlbumForUpdate(err, album, req, res, albumId, setAlbumUpdateDetails));
+        Album.findById(albumId).exec()
+            .then((album) => {
+                getAlbumForUpdate(album, req, res, albumId, setAlbumUpdateDetails);
+            })
+            .catch(err => {
+                makeErrorResponse(err, res);
+            });
     }
     if (response.status !== 200) {
         res.status(response.status).json(response.message);
@@ -191,27 +206,34 @@ const partialUpdateOne = (req, res) => {
     updateOne(req, res, setPartialAlbumUpdateDetails);
 };
 
-const getAlbumForUpdate = (err, album, req, res, albumId, setAlbumUpdateDetails) => {
+const getAlbumForUpdate = (album, req, res, albumId, setAlbumUpdateDetails) => {
     const response = {
         status: 200,
         message: {}
     };
-    if (err) {
-        response.status = 500;
-        response.message = {error: err};
-    } else if (!album) {
+    if (!album) {
         response.status = 404;
         response.message = {message: "Album with id " + albumId + " not found"};
     } else {
         setAlbumUpdateDetails(req, album, response);
 
         if (response.status === 200) {
-            album.save((err, updatedAlbum) => saveAlbumCallback(err, res, updatedAlbum, response));
+            album.save()
+                .then((updatedAlbum) => {
+                    makeOneAlbumRespose(updatedAlbum, res);
+                })
+                .catch(err => {
+                    makeErrorResponse(err, res);
+                });
         }
     }
     if (response.status !== 200) {
         res.status(response.status).json(response.message);
     }
+};
+
+const makeOneAlbumRespose = (updatedAlbum, res) => {
+    res.status(200).json(updatedAlbum);
 };
 
 const setFullAlbumUpdateDetails = (req, album, response) => {
@@ -298,17 +320,6 @@ const setPartialAlbumUpdateDetails = (req, album, response) => {
         response.status = 400;
         response.message = {message: "No JSON body provided"};
     }
-};
-
-const saveAlbumCallback = (err, res, updatedAlbum, response) => {
-    if (err) {
-        response.status = 500;
-        response.message = {error: err};
-    } else {
-        response.status = 200;
-        response.message = updatedAlbum;
-    }
-    res.status(response.status).json(response.message);
 };
 
 

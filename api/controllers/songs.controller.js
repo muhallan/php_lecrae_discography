@@ -14,15 +14,20 @@ const getAll = (req, res) => {
         response.message = {message: "Invalid album ID provided"};
         res.status(response.status).json(response.message);
     } else {
-        Album.findById(albumId).select("songs").exec((err, album) => makeAllSongsResponse(err, album, response, res));
+        Album.findById(albumId).select("songs").exec()
+            .then((album) => {
+                makeAllSongsResponse(album, response, res);
+            })
+            .catch(err => makeErrorResponse(err, res));
     }
 };
 
-const makeAllSongsResponse = (err, album, response, res) => {
-    if (err) {
-        response.status = 500;
-        response.message = {error: err};
-    } else if (!album) {
+const makeErrorResponse = (err, res) => {
+    res.status(500).json({error: err});
+};
+
+const makeAllSongsResponse = (album, response, res) => {
+    if (!album) {
         response.status = 404;
         response.message = {message: "Album with id " + albumId + " not found"};
     } else {
@@ -44,22 +49,21 @@ const addOne = (req, res) => {
         response.status = 400;
         response.message = {message: "Invalid album ID provided"};
     } else {
-        Album.findById(albumId).select('songs').exec((err, album) => fetchAlbumCallback(err, album, albumId, req, res, response));
+        Album.findById(albumId).select('songs').exec()
+            .then(album => fetchAlbumCallback(album, albumId, req, res))
+            .catch(err => makeErrorResponse(err, res));
     }
     if (response.status !== 200) {
         res.status(response.status).json(response.message);
     }
 };
 
-const fetchAlbumCallback = (err, album, albumId, req, res) => {
+const fetchAlbumCallback = (album, albumId, req, res) => {
     const response = {
         status: 200,
         message: {}
     };
-    if (err) {
-        response.status = 500;
-        response.message = {error: err};
-    } else if (!album) {
+    if (!album) {
         response.status = 404;
         response.message = {message: "Album with id " + albumId + " not found"};   
     } else {
@@ -82,7 +86,9 @@ const _addSong = (req, res, album, response) => {
             newSong.writers = req.body.writers;
             album.songs.push(newSong);
 
-            album.save((err, updatedAlbum) => saveAlbumCallback(err, res, updatedAlbum, response));
+            album.save()
+                .then(updatedAlbum => saveAlbumCallback(res, updatedAlbum))
+                .catch(err => makeErrorResponse(err, res));
         }
     } else {
         response.status = 500;
@@ -91,15 +97,8 @@ const _addSong = (req, res, album, response) => {
     
 };
 
-const saveAlbumCallback = (err, res, updatedAlbum, response) => {
-    if (err) {
-        response.status = 500;
-        response.message = {error: err};
-    } else {
-        response.status = 201;
-        response.message = updatedAlbum.songs;
-    }
-    res.status(response.status).json(response.message);
+const saveAlbumCallback = (res, updatedAlbum) => {
+    res.status(201).json(updatedAlbum.songs);
 };
 
 
@@ -119,18 +118,17 @@ const getOne = (req, res) => {
         response.status = 400;
         response.message = {message: "Invalid song ID provided"};
     } else {
-        Album.findById(albumId).select("songs").exec((err, album) => getAlbumSongCallback(err, album, res, response, albumId, songId));
+        Album.findById(albumId).select("songs").exec()
+            .then(album => getAlbumSongCallback(album, res, response, albumId, songId))
+            .catch(err => makeErrorResponse(err, res));
     }
     if (response.status !== 200) {
         res.status(response.status).json(response.message);
     }
 };
 
-const getAlbumSongCallback = (err, album, res, response, albumId, songId) => {
-    if (err) {
-        response.status = 500;
-        response.message = {error: err};
-    } else if (!album) {
+const getAlbumSongCallback = (album, res, response, albumId, songId) => {
+    if (!album) {
         response.status = 404;
         response.message = {message: "Album with id " + albumId + " not found"};
     } else {
@@ -162,23 +160,22 @@ const deleteOne = (req, res) => {
         response.status = 400;
         response.message = {message: "Invalid song ID provided"};
     } else {
-        Album.findById(albumId).select("songs").exec((err, album) => getAlbumSongForDeleteCallback(err, album, res, albumId, songId));
+        Album.findById(albumId).select("songs").exec()
+            .then(album => getAlbumSongForDeleteCallback(album, res, albumId, songId))
+            .catch(err => makeErrorResponse(err, res));
     }
     if (response.status !== 200) {
         res.status(response.status).json(response.message);
     } 
 };
 
-const getAlbumSongForDeleteCallback = (err, album, res, albumId, songId) => {
+const getAlbumSongForDeleteCallback = (album, res, albumId, songId) => {
     const response = {
         status: 200,
         message: {}
     };
 
-    if (err) {
-        response.status = 500;
-        response.message = {error: err};
-    } else if (!album) {
+    if (!album) {
         response.status = 404;
         response.message = {message: "Album with id " + albumId + " not found"};
     } else {
@@ -190,7 +187,9 @@ const getAlbumSongForDeleteCallback = (err, album, res, albumId, songId) => {
             let songs = album.songs;
             songs = songs.filter(aSong => aSong.id !== songId);
             album.songs = songs;
-            album.save((err, updatedAlbum) => saveAlbumDeleteSongCallback(err, res));
+            album.save()
+                .then((updatedAlbum) => saveAlbumDeleteSongCallback(res))
+                .catch(err => makeErrorResponse(err, res));
         }
     }
     if (response.status !== 200) {
@@ -198,16 +197,8 @@ const getAlbumSongForDeleteCallback = (err, album, res, albumId, songId) => {
     }
 }
 
-const saveAlbumDeleteSongCallback = (err, res) => {
-    const response = {};
-    if (err) {
-        response.status = 500;
-        response.message = {error: err};
-    } else {
-        response.status = 200;
-        response.message = {message: "Song removed successfully"};
-    }
-    res.status(response.status).json(response.message);
+const saveAlbumDeleteSongCallback = (res) => {
+    res.status(200).json({message: "Song removed successfully"});
 };
 
 const fullUpdateOne = (req, res) => {
@@ -234,23 +225,24 @@ const updateOne = (req, res, setSongUpdateDetails) => {
         response.status = 400;
         response.message = {message: "Invalid song ID provided"};
     } else {
-        Album.findById(albumId).select("songs").exec((err, album) => getAlbumSongForUpdateCallback(err, album, res, req, albumId, songId, setSongUpdateDetails));
+        Album.findById(albumId).select("songs").exec()
+            .then((album) => {
+                getAlbumSongForUpdateCallback(album, res, req, albumId, songId, setSongUpdateDetails)
+            })
+            .catch(err => makeErrorResponse(err, res));
     }
     if (response.status !== 200) {
         res.status(response.status).json(response.message);
     }
 }
 
-const getAlbumSongForUpdateCallback = (err, album, res, req, albumId, songId, setSongUpdateDetails) => {
+const getAlbumSongForUpdateCallback = (album, res, req, albumId, songId, setSongUpdateDetails) => {
     const response = {
         status: 200,
         message: {}
     };
 
-    if (err) {
-        response.status = 500;
-        response.message = {error: err};
-    } else if (!album) {
+    if (!album) {
         response.status = 404;
         response.message = {message: "Album with id " + albumId + " not found"};
     } else {
@@ -271,7 +263,9 @@ const _updateSong = (req, res, album, song, songId, response, setSongUpdateDetai
     setSongUpdateDetails(req, song, response);
 
     if (response.status === 200) {
-        album.save((err, updatedAlbum) => saveAlbumSongUpdateCallback(err, res, updatedAlbum, songId, response));
+        album.save()
+            .then(updatedAlbum => saveAlbumSongUpdateCallback(res, updatedAlbum, songId))
+            .catch(err => makeErrorResponse(err, res));
     }
 }
 
@@ -310,15 +304,8 @@ const setPartialSongUpdateDetails = (req, song, response) => {
     }
 };
 
-const saveAlbumSongUpdateCallback = (err, res, updatedAlbum, songId, response) => {
-    if (err) {
-        response.status = 500;
-        response.message = {error: err};
-    } else {
-        response.status = 200;
-        response.message = updatedAlbum.songs.id(songId);
-    }
-    res.status(response.status).json(response.message);
+const saveAlbumSongUpdateCallback = (res, updatedAlbum, songId) => {
+    res.status(200).json(updatedAlbum.songs.id(songId));
 };
 
 module.exports = {
