@@ -27,12 +27,11 @@ export class AlbumsComponent implements OnInit {
   }
 
   fetchAlbums() {
-    this.albumService.getAlbums(this.search_text).subscribe({
-      next: albumsJson => {
+    this.albumService.getAlbums(this.search_text)
+      .then(albumsJson => {
         this.albums = albumsJson.albums
-      },
-      error: err => console.log(err)
-    });
+      })
+      .catch(err => console.log(err));
   }
 
   addAlbum(): void {
@@ -42,9 +41,11 @@ export class AlbumsComponent implements OnInit {
   confirmDelete(id: string) {
     console.log("clicked delete");
     if (confirm("Do you want to delete this album?")) {
-      this.albumService.deleteAlbum(id).subscribe(result => {
+      this.albumService.deleteAlbum(id)
+      .then(result => {
         this.fetchAlbums();
-      });
+      })
+      .catch(err => console.log(err));
     }
 
   }
@@ -57,9 +58,8 @@ export class AlbumsComponent implements OnInit {
   searchAlbums(query: string) {
     this.search_text = query;
     console.log("q", query);
-    this.albumService.getAlbums(this.search_text).subscribe({
-      next: albumsJson => this.albums = albumsJson.albums,
-      error: err => console.log(err)
-    })
+    this.albumService.getAlbums(this.search_text)
+      .then(albumsJson => this.albums = albumsJson.albums)
+      .catch(err => console.log(err));
   }
 }

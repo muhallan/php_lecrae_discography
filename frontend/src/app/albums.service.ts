@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { Observable } from 'rxjs';
+import { Observable, lastValueFrom } from 'rxjs';
 
 import { Album, AlbumJSONResponse } from './_models/album';
 import { Song } from './_models/song';
@@ -18,16 +18,16 @@ export class AlbumsService {
 
   constructor(private http: HttpClient) { }
 
-  public getAlbums(query: string): Observable<AlbumJSONResponse> {
-    return this.http.get<AlbumJSONResponse>(this.albumsUrl + '?q=' + query);
+  public getAlbums(query: string): Promise<AlbumJSONResponse> {
+    return lastValueFrom(this.http.get<AlbumJSONResponse>(this.albumsUrl + '?q=' + query));
   }
 
-  public getAlbum(id: string): Observable<Album> {
-    return this.http.get<Album>(this.albumsUrl + "/" + id);
+  public getAlbum(id: string): Promise<Album> {
+    return lastValueFrom(this.http.get<Album>(this.albumsUrl + "/" + id));
   }
 
-  public createAlbum(album: Object): Observable<Album> {
-    return this.http.post<Album>(this.albumsUrl, album, this.getHeaders());
+  public createAlbum(album: Object): Promise<Album> {
+    return lastValueFrom(this.http.post<Album>(this.albumsUrl, album, this.getHeaders()));
   }
 
   private getHeaders() {
@@ -45,17 +45,17 @@ export class AlbumsService {
     return this.albumToEdit;
   }
 
-  public editAlbum(album: Album): Observable<Album> {
+  public editAlbum(album: Album): Promise<Album> {
     const data = {
       title: album.title,
       year: album.year
     };
-    return this.http.patch<Album>(this.albumsUrl + "/" + album._id, data, this.getHeaders());
+    return lastValueFrom(this.http.patch<Album>(this.albumsUrl + "/" + album._id, data, this.getHeaders()));
   }
 
-  public addSong(albumId: string, songData: Object): Observable<Song[]> {
+  public addSong(albumId: string, songData: Object): Promise<Song[]> {
     const url = this.albumsUrl + '/' + albumId + '/songs';
-    return this.http.post<Song[]>(url, songData, this.getHeaders());
+    return lastValueFrom(this.http.post<Song[]>(url, songData, this.getHeaders()));
   }
 
   public setSongToEdit(song: Song) {
@@ -66,23 +66,23 @@ export class AlbumsService {
     return this.songToEdit;
   }
 
-  public getSong(albumId: string, songId: string): Observable<Song> {
+  public getSong(albumId: string, songId: string): Promise<Song> {
     const url = this.albumsUrl + '/' + albumId + '/songs/' + songId;
-    return this.http.get<Song>(url);
+    return lastValueFrom(this.http.get<Song>(url));
   }
 
-  public editSong(songData: Object, albumId: string, songId: string): Observable<Song> {
+  public editSong(songData: Object, albumId: string, songId: string): Promise<Song> {
     const url = this.albumsUrl + '/' + albumId + '/songs/' + songId;
-    return this.http.put<Song>(url, songData, this.getHeaders());
+    return lastValueFrom(this.http.put<Song>(url, songData, this.getHeaders()));
   }
 
-  public deleteAlbum(id: string): Observable<any> {
-    return this.http.delete(this.albumsUrl + '/' + id);
+  public deleteAlbum(id: string): Promise<any> {
+    return lastValueFrom(this.http.delete(this.albumsUrl + '/' + id));
   }
 
-  public deleteSong(albumId: string, songId: string): Observable<any> {
+  public deleteSong(albumId: string, songId: string): Promise<any> {
     const url = this.albumsUrl + '/' + albumId + '/songs/' + songId;
-    return this.http.delete(url);
+    return lastValueFrom(this.http.delete(url));
   }
 
 }

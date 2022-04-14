@@ -13,13 +13,17 @@ export class AddAlbumComponent implements OnInit {
     title: '',
     year: ''
   }
+  enableSearch = false;
+
   constructor(private albumsService: AlbumsService) { }
 
   ngOnInit(): void {
   }
 
   addAlbum() {
-    this.albumsService.createAlbum(this.album).subscribe((album) => console.log(album));
+    this.albumsService.createAlbum(this.album)
+      .then((album) => console.log(album))
+      .catch(err => console.log(err));
   }
 
   isFieldValid(field: NgModel | null) {

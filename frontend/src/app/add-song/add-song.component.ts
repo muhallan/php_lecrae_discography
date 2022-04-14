@@ -27,7 +27,9 @@ export class AddSongComponent implements OnInit {
     this.albumId = this._route.snapshot.params['albumId'];
     this.albumToEdit = this.albumService.getAlbumToEdit();
     if (this.albumToEdit._id === '') {
-      this.albumService.getAlbum(this.albumId).subscribe(album => this.albumToEdit = album);
+      this.albumService.getAlbum(this.albumId)
+        .then(album => this.albumToEdit = album)
+        .catch(err => console.log(err));
     }
   }
 
@@ -40,16 +42,15 @@ export class AddSongComponent implements OnInit {
       name: this.song.name,
       writers: writers
     }
-    this.albumService.addSong(this.albumId, songData).subscribe({
-      next: (songs) => {
+    this.albumService.addSong(this.albumId, songData)
+      .then((songs) => {
         // this.song.name = '';
         // this.song.writers = '';
         this.successfulAdd = true;
         songForm.reset();
         console.log(songs)
-      },
-      error: (err) => console.log(err)
-    });
+      })
+      .catch(err => console.log(err));
   }
 
   isFieldValid(field: NgModel | null) {

@@ -20,7 +20,9 @@ export class EditAlbumComponent implements OnInit {
     this.album = this.albumService.getAlbumToEdit();
     const id = this._route.snapshot.params['albumId'];
     if (this.album._id == '') {
-      this.albumService.getAlbum(id).subscribe(album => this.album = album);
+      this.albumService.getAlbum(id)
+        .then(album => this.album = album)
+        .catch(err => console.log(err));
     }
   }
 
@@ -29,11 +31,10 @@ export class EditAlbumComponent implements OnInit {
   }
 
   editAlbum() {
-    this.albumService.editAlbum(this.album).subscribe({
-      next: (album) => {
+    this.albumService.editAlbum(this.album)
+      .then((album) => {
         this.router.navigate(['albums']);
-      },
-      error: (err) => console.log(err) 
-    });
+      })
+      .catch(err => console.log(err));
   }
 }

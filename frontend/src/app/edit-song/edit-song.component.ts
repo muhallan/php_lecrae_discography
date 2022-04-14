@@ -31,10 +31,14 @@ export class EditSongComponent implements OnInit {
     this.albumToEdit = this.albumService.getAlbumToEdit();
     this.songToEdit = this.albumService.getSongToEdit();
     if (this.albumToEdit._id === '') {
-      this.albumService.getAlbum(this.albumId).subscribe(album => this.albumToEdit = album);
+      this.albumService.getAlbum(this.albumId)
+        .then(album => this.albumToEdit = album)
+        .catch(err => console.log(err));
     }
     if (this.songToEdit._id === '') {
-      this.albumService.getSong(this.albumId, this.songId).subscribe(song => this.songToEdit = song);
+      this.albumService.getSong(this.albumId, this.songId)
+        .then(song => this.songToEdit = song)
+        .catch(err => console.log(err));
     }
     this.song.name = this.songToEdit.name;
     this.song.writers = this.songToEdit.writers.join(", ");
@@ -50,9 +54,10 @@ export class EditSongComponent implements OnInit {
       name: this.song.name,
       writers: writers
     }
-    this.albumService.editSong(songData, this.albumId, this.songId).subscribe(song => {
-      console.log(song);
-      this.router.navigate(['albums/' + this.albumId]);
-    });
+    this.albumService.editSong(songData, this.albumId, this.songId)
+      .then(song => {
+        this.router.navigate(['albums/' + this.albumId]);
+      })
+      .catch(err => console.log(err));
   }
 }

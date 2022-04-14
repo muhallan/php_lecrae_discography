@@ -24,22 +24,21 @@ export class AlbumComponent implements OnInit {
   }
 
   fetchAlbum(id: string) {
-    this.albumService.getAlbum(id).subscribe(
-      {
-        next: album => {
-          this.album = album;
-          this.songs = album.songs;
-        },
-        error: error => console.log(error)
-      }
-    );
+    this.albumService.getAlbum(id)
+    .then(album => {
+      this.album = album;
+      this.songs = album.songs;
+    })
+    .catch(error => console.log(error));
   }
 
   confirmDeleteSong(songId: string) {
     if (confirm("Do you want to delete this song?")) {
-      this.albumService.deleteSong(this.album._id, songId).subscribe(result => {
-        this.fetchAlbum(this.album._id);
-      });
+      this.albumService.deleteSong(this.album._id, songId)
+        .then(result => {
+          this.fetchAlbum(this.album._id);
+        })
+        .catch(err => console.log(err));
     }
   }
 
