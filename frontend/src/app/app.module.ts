@@ -12,6 +12,8 @@ import { EditAlbumComponent } from './edit-album/edit-album.component';
 import { AddSongComponent } from './add-song/add-song.component';
 import { EditSongComponent } from './edit-song/edit-song.component';
 import { HeaderComponent } from './header/header.component';
+import { RegisterComponent } from './register/register.component';
+import { LoginComponent } from './login/login.component';
 
 @NgModule({
   declarations: [
@@ -22,7 +24,9 @@ import { HeaderComponent } from './header/header.component';
     EditAlbumComponent,
     AddSongComponent,
     EditSongComponent,
-    HeaderComponent
+    HeaderComponent,
+    RegisterComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,
@@ -57,6 +61,14 @@ import { HeaderComponent } from './header/header.component';
       {
         path: 'albums/:albumId/edit_song/:songId',
         component: EditSongComponent
+      },
+      {
+        path: 'register',
+        component: RegisterComponent
+      },
+      {
+        path: 'login',
+        component: LoginComponent
       }
     ]),
   ],

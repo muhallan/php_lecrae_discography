@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 require('./albums-model');
+require('./users-model')
 
 mongoose.connect(process.env.DB_URL + "/" + process.env.DB_NAME);
 

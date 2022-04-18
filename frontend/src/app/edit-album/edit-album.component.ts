@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlbumsService } from '../albums.service';
+import { AlbumsService } from '../_services/albums.service';
 import { Album } from '../_models/album';
 
 @Component({

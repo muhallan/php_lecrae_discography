@@ -3,8 +3,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
 import { Observable, lastValueFrom } from 'rxjs';
 
-import { Album, AlbumJSONResponse } from './_models/album';
-import { Song } from './_models/song';
+import { Album, AlbumJSONResponse } from '../_models/album';
+import { Song } from '../_models/song';
 
 @Injectable({
   providedIn: 'root'

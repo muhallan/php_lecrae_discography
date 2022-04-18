@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm, NgModel } from '@angular/forms';
-import { AlbumsService } from '../albums.service';
+import { AlbumsService } from '../_services/albums.service';
 
 @Component({
   selector: 'app-add-album',
