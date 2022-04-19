@@ -18,11 +18,6 @@ export class AlbumsComponent implements OnInit {
   albums: Album[] = [];
 
   ngOnInit(): void {
-
-    // this.albums.push(new Album("1", "After the Music stops", 2006));
-    // this.albums.push(new Album("2", "Anomaly", 2008));
-    // this.albums.push(new Album("3", "Rehab", 2009));
-    // this.albums.push(new Album("4", "Church Clothes", 2010));
     this.fetchAlbums();
   }
 
@@ -39,7 +34,6 @@ export class AlbumsComponent implements OnInit {
   }
 
   confirmDelete(id: string) {
-    console.log("clicked delete");
     if (confirm("Do you want to delete this album?")) {
       this.albumService.deleteAlbum(id)
       .then(result => {
@@ -57,7 +51,6 @@ export class AlbumsComponent implements OnInit {
 
   searchAlbums(query: string) {
     this.search_text = query;
-    console.log("q", query);
     this.albumService.getAlbums(this.search_text)
       .then(albumsJson => this.albums = albumsJson.albums)
       .catch(err => console.log(err));

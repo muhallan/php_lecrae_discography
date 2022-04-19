@@ -34,8 +34,6 @@ export class AddSongComponent implements OnInit {
   }
 
   addSong(songForm: NgForm) {
-    console.log("added song")
-    console.log(this.song);
     this.successfulAdd = false;
     const writers = this.song.writers.split(",");
     const songData = {
@@ -44,11 +42,8 @@ export class AddSongComponent implements OnInit {
     }
     this.albumService.addSong(this.albumId, songData)
       .then((songs) => {
-        // this.song.name = '';
-        // this.song.writers = '';
         this.successfulAdd = true;
         songForm.reset();
-        console.log(songs)
       })
       .catch(err => console.log(err));
   }

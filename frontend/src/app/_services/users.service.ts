@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { lastValueFrom } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 import { User } from '../_models/user';
 
@@ -26,11 +27,12 @@ export class UsersService {
     return options;
   }
 
-  public login(user: any) {
-    return this.http.post(this.usersUrl + 'login', user, this.getHeaders())
-      .then((response) => {
-
-      });
+  public login(user: any): Promise<User> {
+    return lastValueFrom(this.http.post<User>(this.usersUrl + 'login', user, this.getHeaders()));
   }
 
+  public logout() {
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('username');
+  }
 }

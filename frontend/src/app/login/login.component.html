@@ -2,11 +2,11 @@
 <div class="row justify-content-center" style="margin-top: 60px;">
     <div class="col-md-4">
         <h2 class="text-center">Login</h2> <br />
-        <form name="form" (ngSubmit)="f.form.valid && login(model.email, model.password)" #f="ngForm" novalidate>
+        <form name="form" (ngSubmit)="f.form.valid && login()" #f="ngForm" novalidate>
             <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" class="form-control" [ngClass]="{ 'is-invalid': f.submitted && !email.valid }" name="email" [(ngModel)]="model.email" #email="ngModel" required />
-                <div *ngIf="f.submitted && !email.valid" class="help-block text-danger">Email is required</div>
+                <label for="username">Username</label>
+                <input type="username" class="form-control" [ngClass]="{ 'is-invalid': f.submitted && !username.valid }" name="username" [(ngModel)]="model.username" #username="ngModel" required />
+                <div *ngIf="f.submitted && !username.valid" class="help-block text-danger">Username is required</div>
             </div>
             <div class="form-group">
                 <label for="password">Password</label>

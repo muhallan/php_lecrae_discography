@@ -14,6 +14,7 @@ import { EditSongComponent } from './edit-song/edit-song.component';
 import { HeaderComponent } from './header/header.component';
 import { RegisterComponent } from './register/register.component';
 import { LoginComponent } from './login/login.component';
+import { AuthGuard } from './_guards/auth.guard';
 
 @NgModule({
   declarations: [
@@ -40,27 +41,33 @@ import { LoginComponent } from './login/login.component';
       },
       {
         path: 'albums',
-        component: AlbumsComponent
+        component: AlbumsComponent,
+        canActivate: [AuthGuard]
       },
       {
         path: 'add_album',
-        component: AddAlbumComponent
+        component: AddAlbumComponent,
+        canActivate: [AuthGuard]
       },
       {
         path: 'albums/:albumId',
-        component: AlbumComponent
+        component: AlbumComponent,
+        canActivate: [AuthGuard]
       },
       {
         path: 'edit_album/:albumId',
-        component: EditAlbumComponent
+        component: EditAlbumComponent,
+        canActivate: [AuthGuard]
       },
       {
         path: 'albums/:albumId/add_song',
-        component: AddSongComponent
+        component: AddSongComponent,
+        canActivate: [AuthGuard]
       },
       {
         path: 'albums/:albumId/edit_song/:songId',
-        component: EditSongComponent
+        component: EditSongComponent,
+        canActivate: [AuthGuard]
       },
       {
         path: 'register',
@@ -72,7 +79,7 @@ import { LoginComponent } from './login/login.component';
       }
     ]),
   ],
-  providers: [],
+  providers: [AuthGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
