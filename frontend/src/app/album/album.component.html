@@ -14,9 +14,7 @@
                       <a (click)="editSong(song)"><span class="fa fa-edit pull-right" style="margin-right: 15px;"></span></a>
                     </h4>
                     <div class="writers">
-                      <span *ngFor="let writer of song.writers; let isLast = last">
-                        {{writer}}{{isLast ? '' : ', '}}
-                      </span>
+                      {{song.writers | join}}
                     </div>
                   </div>
               </li>
