@@ -15,15 +15,32 @@ export class AddAlbumComponent implements OnInit {
   }
   enableSearch = false;
 
+  errorMessage: string = '';
+  hasSuccess: boolean = false;
+  hasError: boolean = false;
+
   constructor(private albumsService: AlbumsService) { }
 
   ngOnInit(): void {
   }
 
-  addAlbum() {
+  addAlbum(albumForm: NgForm) {
     this.albumsService.createAlbum(this.album)
-      .then((album) => console.log(album))
-      .catch(err => console.log(err));
+      .then((album) => {
+        this.hasSuccess = true;
+        this.errorMessage = '';
+        this.hasError = false;
+
+        albumForm.reset();
+      })
+      .catch(err => {
+        const body = JSON.parse(err._body);
+        const message = body.message;
+
+        this.errorMessage = message;
+        this.hasError = true;
+        this.hasSuccess = false;
+      });
   }
 
   isFieldValid(field: NgModel | null) {

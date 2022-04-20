@@ -5,33 +5,33 @@ const getAll = (req, res) => {
     const albumId = req.params.albumId;
 
     const response = {
-        status: 200,
+        status: process.env.SUCCESS_RESPONSE_STATUS_CODE,
         message: {}
     };
 
     if (!mongoose.isValidObjectId(albumId)) {
-        response.status = 400;
-        response.message = {message: "Invalid album ID provided"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.INVALID_ALBUM_ID};
         res.status(response.status).json(response.message);
     } else {
         Album.findById(albumId).select("songs").exec()
             .then((album) => {
-                makeAllSongsResponse(album, response, res);
+                makeAllSongsResponse(album, albumId, response, res);
             })
             .catch(err => makeErrorResponse(err, res));
     }
 };
 
 const makeErrorResponse = (err, res) => {
-    res.status(500).json({error: err});
+    res.status(process.env.INTERNAL_ERROR_STATUS_CODE).json({error: err});
 };
 
-const makeAllSongsResponse = (album, response, res) => {
+const makeAllSongsResponse = (album, albumId, response, res) => {
     if (!album) {
-        response.status = 404;
-        response.message = {message: "Album with id " + albumId + " not found"};
+        response.status = process.env.NOT_FOUND_STATUS_CODE;
+        response.message = {message: process.env.ALBUM_WITH_ID + albumId + process.env.NOT_FOUND};
     } else {
-        response.status = 200;
+        response.status = process.env.SUCCESS_RESPONSE_STATUS_CODE;
         response.message = {songs: album.songs};
     }
     res.status(response.status).json(response.message);
@@ -41,35 +41,35 @@ const addOne = (req, res) => {
     const albumId = req.params.albumId;
 
     const response = {
-        status: 200,
+        status: process.env.SUCCESS_RESPONSE_STATUS_CODE,
         message: {}
     };
 
     if (!mongoose.isValidObjectId(albumId)) {
-        response.status = 400;
-        response.message = {message: "Invalid album ID provided"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.INVALID_ALBUM_ID};
     } else {
         Album.findById(albumId).select('songs').exec()
             .then(album => fetchAlbumCallback(album, albumId, req, res))
             .catch(err => makeErrorResponse(err, res));
     }
-    if (response.status !== 200) {
+    if (response.status !== process.env.SUCCESS_RESPONSE_STATUS_CODE) {
         res.status(response.status).json(response.message);
     }
 };
 
 const fetchAlbumCallback = (album, albumId, req, res) => {
     const response = {
-        status: 200,
+        status: process.env.SUCCESS_RESPONSE_STATUS_CODE,
         message: {}
     };
     if (!album) {
-        response.status = 404;
-        response.message = {message: "Album with id " + albumId + " not found"};   
+        response.status = process.env.NOT_FOUND_STATUS_CODE;
+        response.message = {message: process.env.ALBUM_WITH_ID + albumId + process.env.NOT_FOUND};   
     } else {
         _addSong(req, res, album, response);
     }
-    if (response.status !== 200) {
+    if (response.status !== process.env.SUCCESS_RESPONSE_STATUS_CODE) {
         res.status(response.status).json(response.message);
     }
 };
@@ -79,8 +79,8 @@ const _addSong = (req, res, album, response) => {
     if (req.body && req.body.name && req.body.writers) {
         const writers = req.body.writers;
         if (!Array.isArray(writers) || !writers.length) {
-            response.status = 400;
-            response.message = {message: "Writers must be provided as an array of strings"};
+            response.status = process.env.USER_ERROR_STATUS_CODE;
+            response.message = {message: process.env.WRITERS_ARE_STRINGS_ARRAY};
         } else {
             newSong.name = req.body.name;
             newSong.writers = req.body.writers;
@@ -91,14 +91,14 @@ const _addSong = (req, res, album, response) => {
                 .catch(err => makeErrorResponse(err, res));
         }
     } else {
-        response.status = 500;
-        response.message = {message: "Incomplete data provided. A song requires a name and writers"};
+        response.status = process.env.INTERNAL_ERROR_STATUS_CODE;
+        response.message = {message: process.env.SONG_HAS_NAME_WRITERS};
     }
     
 };
 
 const saveAlbumCallback = (res, updatedAlbum) => {
-    res.status(201).json(updatedAlbum.songs);
+    res.status(process.env.USER_CREATED_STATUS_CODE).json(updatedAlbum.songs);
 };
 
 
@@ -107,37 +107,37 @@ const getOne = (req, res) => {
     const songId = req.params.songId;
 
     const response = {
-        status: 200,
+        status: process.env.SUCCESS_RESPONSE_STATUS_CODE,
         message: {}
     };
 
     if (!mongoose.isValidObjectId(albumId)) {
-        response.status = 400;
-        response.message = {message: "Invalid album ID provided"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.INVALID_ALBUM_ID};
     } else if (!mongoose.isValidObjectId(songId)) {
-        response.status = 400;
-        response.message = {message: "Invalid song ID provided"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.INVALID_SONG_ID};
     } else {
         Album.findById(albumId).select("songs").exec()
             .then(album => getAlbumSongCallback(album, res, response, albumId, songId))
             .catch(err => makeErrorResponse(err, res));
     }
-    if (response.status !== 200) {
+    if (response.status !== process.env.SUCCESS_RESPONSE_STATUS_CODE) {
         res.status(response.status).json(response.message);
     }
 };
 
 const getAlbumSongCallback = (album, res, response, albumId, songId) => {
     if (!album) {
-        response.status = 404;
-        response.message = {message: "Album with id " + albumId + " not found"};
+        response.status = process.env.NOT_FOUND_STATUS_CODE;
+        response.message = {message: process.env.ALBUM_WITH_ID + albumId + process.env.NOT_FOUND};
     } else {
         const song = album.songs.id(songId);
         if (!song) {
-            response.status = 404;
-            response.message = {message: "Song with id " + songId + " not found"};
+            response.status = process.env.NOT_FOUND_STATUS_CODE;
+            response.message = {message: process.env.SONG_WITH_ID + songId + process.env.NOT_FOUND};
         } else {
-            response.status = 200;
+            response.status = process.env.SUCCESS_RESPONSE_STATUS_CODE;
             response.message = song;
         }
     }
@@ -149,40 +149,40 @@ const deleteOne = (req, res) => {
     const songId = req.params.songId;
 
     const response = {
-        status: 200,
+        status: process.env.SUCCESS_RESPONSE_STATUS_CODE,
         message: {}
     };
 
     if (!mongoose.isValidObjectId(albumId)) {
-        response.status = 400;
-        response.message = {message: "Invalid album ID provided"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.INVALID_ALBUM_ID};
     } else if (!mongoose.isValidObjectId(songId)) {
-        response.status = 400;
-        response.message = {message: "Invalid song ID provided"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.INVALID_SONG_ID};
     } else {
         Album.findById(albumId).select("songs").exec()
             .then(album => getAlbumSongForDeleteCallback(album, res, albumId, songId))
             .catch(err => makeErrorResponse(err, res));
     }
-    if (response.status !== 200) {
+    if (response.status !== process.env.SUCCESS_RESPONSE_STATUS_CODE) {
         res.status(response.status).json(response.message);
     } 
 };
 
 const getAlbumSongForDeleteCallback = (album, res, albumId, songId) => {
     const response = {
-        status: 200,
+        status: process.env.SUCCESS_RESPONSE_STATUS_CODE,
         message: {}
     };
 
     if (!album) {
-        response.status = 404;
-        response.message = {message: "Album with id " + albumId + " not found"};
+        response.status = process.env.NOT_FOUND_STATUS_CODE;
+        response.message = {message: process.env.ALBUM_WITH_ID + albumId + process.env.NOT_FOUND};
     } else {
         const song = album.songs.id(songId);
         if (!song) {
-            response.status = 404;
-            response.message = {message: "Song with id " + songId + " not found"};
+            response.status = process.env.NOT_FOUND_STATUS_CODE;
+            response.message = {message: process.env.SONG_WITH_ID + songId + process.env.NOT_FOUND};
         } else {
             let songs = album.songs;
             songs = songs.filter(aSong => aSong.id !== songId);
@@ -192,13 +192,13 @@ const getAlbumSongForDeleteCallback = (album, res, albumId, songId) => {
                 .catch(err => makeErrorResponse(err, res));
         }
     }
-    if (response.status !== 200) {
+    if (response.status !== process.env.SUCCESS_RESPONSE_STATUS_CODE) {
         res.status(response.status).json(response.message);
     }
 }
 
 const saveAlbumDeleteSongCallback = (res) => {
-    res.status(200).json({message: "Song removed successfully"});
+    res.status(process.env.SUCCESS_RESPONSE_STATUS_CODE).json({message: process.env.SONG_REMOVED_SUCCESS});
 };
 
 const fullUpdateOne = (req, res) => {
@@ -214,16 +214,16 @@ const updateOne = (req, res, setSongUpdateDetails) => {
     const songId = req.params.songId;
 
     const response = {
-        status: 200,
+        status: process.env.SUCCESS_RESPONSE_STATUS_CODE,
         message: {}
     };
 
     if (!mongoose.isValidObjectId(albumId)) {
-        response.status = 400;
-        response.message = {message: "Invalid album ID provided"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.INVALID_ALBUM_ID};
     } else if (!mongoose.isValidObjectId(songId)) {
-        response.status = 400;
-        response.message = {message: "Invalid song ID provided"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.INVALID_SONG_ID};
     } else {
         Album.findById(albumId).select("songs").exec()
             .then((album) => {
@@ -231,30 +231,30 @@ const updateOne = (req, res, setSongUpdateDetails) => {
             })
             .catch(err => makeErrorResponse(err, res));
     }
-    if (response.status !== 200) {
+    if (response.status !== process.env.SUCCESS_RESPONSE_STATUS_CODE) {
         res.status(response.status).json(response.message);
     }
 }
 
 const getAlbumSongForUpdateCallback = (album, res, req, albumId, songId, setSongUpdateDetails) => {
     const response = {
-        status: 200,
+        status: process.env.SUCCESS_RESPONSE_STATUS_CODE,
         message: {}
     };
 
     if (!album) {
-        response.status = 404;
-        response.message = {message: "Album with id " + albumId + " not found"};
+        response.status = process.env.NOT_FOUND_STATUS_CODE;
+        response.message = {message: process.env.ALBUM_WITH_ID + albumId + process.env.NOT_FOUND};
     } else {
         const song = album.songs.id(songId);
         if (!song) {
-            response.status = 404;
-            response.message = {message: "Song with id " + songId + " not found"};
+            response.status = process.env.NOT_FOUND_STATUS_CODE;
+            response.message = {message: process.env.SONG_WITH_ID + songId + process.env.NOT_FOUND};
         } else {
             _updateSong(req, res, album, song, songId, response, setSongUpdateDetails);
         }
     }
-    if (response.status !== 200) {
+    if (response.status !== process.env.SUCCESS_RESPONSE_STATUS_CODE) {
         res.status(response.status).json(response.message);
     }
 };
@@ -262,7 +262,7 @@ const getAlbumSongForUpdateCallback = (album, res, req, albumId, songId, setSong
 const _updateSong = (req, res, album, song, songId, response, setSongUpdateDetails) => {
     setSongUpdateDetails(req, song, response);
 
-    if (response.status === 200) {
+    if (response.status === process.env.SUCCESS_RESPONSE_STATUS_CODE) {
         album.save()
             .then(updatedAlbum => saveAlbumSongUpdateCallback(res, updatedAlbum, songId))
             .catch(err => makeErrorResponse(err, res));
@@ -273,15 +273,15 @@ const setFullSongUpdateDetails = (req, song, response) => {
     if (req.body && req.body.name && req.body.writers) {
         const writers = req.body.writers;
         if (!Array.isArray(writers) || !writers.length) {
-            response.status = 400;
-            response.message = {message: "Writers must be provided as an array of strings"};
+            response.status = process.env.USER_ERROR_STATUS_CODE;
+            response.message = {message: process.env.WRITERS_ARE_STRINGS_ARRAY};
         } else {
             song.name = req.body.name;
             song.writers = req.body.writers;
         }
     } else {
-        response.status = 400;
-        response.message = {message: "Incomplete data provided. A song requires a name and writers"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.SONG_HAS_NAME_WRITERS};
     }
 };
 
@@ -292,20 +292,20 @@ const setPartialSongUpdateDetails = (req, song, response) => {
         if (req.body.writers) {
             const writers = req.body.writers;
             if (!Array.isArray(writers) || !writers.length) {
-                response.status = 400;
-                response.message = {message: "Writers must be provided as an array of strings"};
+                response.status = process.env.USER_ERROR_STATUS_CODE;
+                response.message = {message: process.env.WRITERS_ARE_STRINGS_ARRAY};
             } else {
                 song.writers = writers;
             }
         }
     } else {
-        response.status = 400;
-        response.message = {message: "No JSON body provided"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.NO_JSON_PROVIDED};
     }
 };
 
 const saveAlbumSongUpdateCallback = (res, updatedAlbum, songId) => {
-    res.status(200).json(updatedAlbum.songs.id(songId));
+    res.status(process.env.SUCCESS_RESPONSE_STATUS_CODE).json(updatedAlbum.songs.id(songId));
 };
 
 module.exports = {

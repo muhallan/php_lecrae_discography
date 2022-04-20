@@ -21,6 +21,10 @@ export class LoginComponent implements OnInit {
   user: any;
 
   loading = false;
+  successMessage: string = '';
+  errorMessage: string = '';
+  hasSuccess: boolean = false;
+  hasError: boolean = false;
 
   constructor(private userService: UsersService, private router: Router) { }
 
@@ -36,11 +40,19 @@ export class LoginComponent implements OnInit {
         localStorage.setItem('currentUser', JSON.stringify(user));
         localStorage.setItem('username', user.username);
         this.router.navigate(['']);
+
+        this.errorMessage = '';
+        this.hasError = false;
+        this.hasSuccess = true;
+        this.successMessage = '';
       })
       .catch((err: HttpErrorResponse) => {
         this.loading = false;
         if (err.error instanceof Error) {
-          alert("An error has occurred. Please try again");
+          this.errorMessage = "An error has occurred. Please try again";
+          this.hasError = true;
+          this.hasSuccess = false;
+          this.successMessage = '';
         } else {
           let message: string | null;
           if (err.status === 401) {
@@ -50,7 +62,10 @@ export class LoginComponent implements OnInit {
           } else {
             message = "An error has occurred. Please try again";
           }
-          alert(message);
+          this.errorMessage = message;
+          this.hasError = true;
+          this.hasSuccess = false;
+          this.successMessage = '';
         }
       });
   }

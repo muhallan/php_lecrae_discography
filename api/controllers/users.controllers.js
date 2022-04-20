@@ -8,7 +8,7 @@ addOne = (req, res) => {
     if (req.body && req.body.username && req.body.password) {
         bcrypt.genSalt(parseInt(process.env.SALT_ROUNDS), (err, salt) => _checkForErrorCreateHashThenCreateUser(err, salt, response, req, res));
     } else {
-        response.status = process.env.USER_ERROR_MISSING_PARAMS_STATUS_CODE;
+        response.status = process.env.USER_ERROR_STATUS_CODE;
         response.message = {message: process.env.INCORRECT_ADD_USER_PARAMETERS};
         _sendResponse(res, response);
     }
@@ -71,7 +71,7 @@ login = (req, res) => {
             .then((user) => makeSingleUserCallback(user, password, res))
             .catch((err) => _handleError(err, response));
     } else {
-        response.status = process.env.USER_ERROR_MISSING_PARAMS_STATUS_CODE;
+        response.status = process.env.USER_ERROR_STATUS_CODE;
         response.message = {message: process.env.INCORRECT_ADD_USER_PARAMETERS};
         _sendResponse(res, response);
     }

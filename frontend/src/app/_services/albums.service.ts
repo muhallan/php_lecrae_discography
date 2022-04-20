@@ -18,8 +18,9 @@ export class AlbumsService {
 
   constructor(private http: HttpClient) { }
 
-  public getAlbums(query: string): Promise<AlbumJSONResponse> {
-    return lastValueFrom(this.http.get<AlbumJSONResponse>(this.albumsUrl + '?q=' + query));
+  public getAlbums(query: string, offset: number, count: number): Promise<AlbumJSONResponse> {
+    const url = this.albumsUrl + '?q=' + query + '&offset=' + offset + '&count=' + count;
+    return lastValueFrom(this.http.get<AlbumJSONResponse>(url));
   }
 
   public getAlbum(id: string): Promise<Album> {

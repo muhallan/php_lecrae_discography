@@ -22,5 +22,11 @@
                 <a [routerLink]="['/albums', albumId]" class="btn btn-link">Cancel</a>
             </div>
         </form>
+        <div *ngIf="hasSuccess" class="alert alert-success">
+            {{successMessage}}
+        </div>
+        <div *ngIf="hasError" class="alert alert-danger">
+            {{errorMessage}}
+        </div>
     </div>
 </div>

@@ -14,6 +14,11 @@ export class RegisterComponent implements OnInit {
   model: any = {};
   loading = false;
 
+  successMessage: string = '';
+  errorMessage: string = '';
+  hasSuccess: boolean = false;
+  hasError: boolean = false;
+
   constructor(private usersService: UsersService, private router: Router) { }
 
   ngOnInit(): void {
@@ -21,21 +26,32 @@ export class RegisterComponent implements OnInit {
 
   register() {
     if (this.model.password !== this.model.confirmPassword) {
-      alert("Passwords don't match.");
+      this.errorMessage = "Passwords don't match";
+      this.hasError = true;
+      this.hasSuccess = false;
+      this.successMessage = '';
       return;
     }
     this.loading = true;
     this.usersService.createUser(this.model)
       .then(user => {
         this.loading = false;
-        alert("Registration successful");
+        this.errorMessage = '';
+        this.hasError = false;
+        this.hasSuccess = true;
+        this.successMessage = "Registration successful";
+
         this.router.navigate(['/login']);
       })
       .catch(err => {
         this.loading = false;
         const body = JSON.parse(err._body);
         const message = body.message;
-        alert(message);
+
+        this.errorMessage = message;
+        this.hasError = true;
+        this.hasSuccess = false;
+        this.successMessage = '';
       });
   }
 }

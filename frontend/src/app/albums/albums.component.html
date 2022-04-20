@@ -1,4 +1,4 @@
-<app-header [display]="enableSearch" (search_query)="searchAlbums($event)"></app-header>
+<app-header [display]="enableSearch" (search_query)="searchAlbums($event)" (limit)="getPageLimit($event)"></app-header>
 <header style="margin-top: 75px; margin-left: 40px;">
   <section class="heading">
       Lecrae's discography showing his albums and the list of songs in each album.
@@ -33,6 +33,17 @@
           <p>{{ empty_message }}</p>
         </div>
     </ng-template> 
+
+    <nav aria-label="Albums navigation" style="margin-right: 20px;">
+        <ul class="pagination justify-content-end">
+            <li class="page-item" [ngClass]="{'disabled': offset == 0}">
+                <a class="page-link" (click)="getPreviousAlbums()" tabindex="-1">Previous</a>
+            </li>
+            <li class="page-item" [ngClass]="{'disabled': isLastPage}">
+                <a class="page-link" (click)="getNextAlbums()">Next</a>
+            </li>
+        </ul>
+    </nav>
 
     <div class="text-center">
         <button (click)="addAlbum()" class="btn btn-primary">Add Album</button>

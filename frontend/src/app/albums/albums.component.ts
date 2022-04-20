@@ -17,14 +17,23 @@ export class AlbumsComponent implements OnInit {
   empty_message = 'No albums found. Please add some.';
   albums: Album[] = [];
 
+  count: number = 5;
+  offset: number = 0;
+  isLastPage = false;
+
   ngOnInit(): void {
     this.fetchAlbums();
   }
 
   fetchAlbums() {
-    this.albumService.getAlbums(this.search_text)
+    this.albumService.getAlbums(this.search_text, this.offset, this.count)
       .then(albumsJson => {
         this.albums = albumsJson.albums
+        if (this.albums.length < this.count) {
+          this.isLastPage = true;
+        } else {
+          this.isLastPage = false;
+        }
       })
       .catch(err => console.log(err));
   }
@@ -51,8 +60,28 @@ export class AlbumsComponent implements OnInit {
 
   searchAlbums(query: string) {
     this.search_text = query;
-    this.albumService.getAlbums(this.search_text)
-      .then(albumsJson => this.albums = albumsJson.albums)
-      .catch(err => console.log(err));
+    this.offset = 0;
+    this.fetchAlbums();
+  }
+
+  getPreviousAlbums() {
+    let newOffset = this.offset - this.count;
+    if (newOffset < 0) {
+      newOffset = 0;
+    }
+    this.offset = newOffset;
+    this.fetchAlbums();
+  }
+
+  getNextAlbums() {
+    let newOffset = this.offset + this.count;
+    this.offset = newOffset;
+    this.fetchAlbums();
+  }
+
+  getPageLimit(limit: number) {
+    this.count = limit;
+    this.offset = 0;
+    this.fetchAlbums();
   }
 }

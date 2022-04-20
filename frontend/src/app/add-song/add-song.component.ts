@@ -23,6 +23,10 @@ export class AddSongComponent implements OnInit {
   successfulAdd: boolean = false;
   enableSearch = false;
 
+  errorMessage: string = '';
+  hasSuccess: boolean = false;
+  hasError: boolean = false;
+
   ngOnInit(): void {
     this.albumId = this._route.snapshot.params['albumId'];
     this.albumToEdit = this.albumService.getAlbumToEdit();
@@ -42,10 +46,20 @@ export class AddSongComponent implements OnInit {
     }
     this.albumService.addSong(this.albumId, songData)
       .then((songs) => {
-        this.successfulAdd = true;
+        this.hasSuccess = true;
+        this.errorMessage = '';
+        this.hasError = false;
+
         songForm.reset();
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        const body = JSON.parse(err._body);
+        const message = body.message;
+
+        this.errorMessage = message;
+        this.hasError = true;
+        this.hasSuccess = false;
+      });
   }
 
   isFieldValid(field: NgModel | null) {

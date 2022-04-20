@@ -25,6 +25,11 @@ export class EditSongComponent implements OnInit {
   songToEdit: Song = new Song("", "", []);
   enableSearch = false;
 
+  successMessage: string = '';
+  errorMessage: string = '';
+  hasSuccess: boolean = false;
+  hasError: boolean = false;
+
   ngOnInit(): void {
     this.albumId = this._route.snapshot.params['albumId'];
     this.songId = this._route.snapshot.params['songId'];
@@ -58,6 +63,14 @@ export class EditSongComponent implements OnInit {
       .then(song => {
         this.router.navigate(['albums/' + this.albumId]);
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        const body = JSON.parse(err._body);
+        const message = body.message;
+
+        this.errorMessage = message;
+        this.hasError = true;
+        this.hasSuccess = false;
+        this.successMessage = '';
+      });
   }
 }

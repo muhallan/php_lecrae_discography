@@ -21,7 +21,12 @@
                 <button class="btn btn-primary">Add Song</button>
                 <a [routerLink]="['/albums', albumId]" class="btn btn-link">Cancel</a>
             </div>
-            <div *ngIf="successfulAdd" class="confirmation">Song has been added successfully.<br/> Add another song, or click Cancel to go back.</div>
         </form>
+        <div *ngIf="hasSuccess" class="alert alert-success confirmation">
+            Song has been added successfully.<br/> Add another song, or click Cancel to go back.
+        </div>
+        <div *ngIf="hasError" class="alert alert-danger">
+            {{errorMessage}}
+        </div>
     </div>
 </div>

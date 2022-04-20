@@ -3,12 +3,12 @@ const Album = mongoose.model(process.env.ALBUM_MODEL);
 
 
 const getAll = (req, res) => {
-    let offset = 0;
-    let count = 5;
-    const maxCount = 10;
+    let offset = parseInt(process.env.DEFAULT_OFFSET);
+    let count = parseInt(process.env.DEFAULT_COUNT);
+    const maxCount = parseInt(process.env.DEFAULT_MAX_COUNT);
 
     const response = {
-        status: 200,
+        status: process.env.SUCCESS_RESPONSE_STATUS_CODE,
         message: {}
     };
     let query = {};
@@ -24,17 +24,17 @@ const getAll = (req, res) => {
     }
 
     if (isNaN(count) || isNaN(offset)) {
-        response.status = 400;
-        response.message = {message: "count and offset must be numbers"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.COUNT_OFFSET_ARE_NUMBERS};
     } else if (count > maxCount) {
-        response.status = 400;
-        response.message = {message: "count must be less than or equal to " + maxCount};
+        response.status = process.env.USER_ERROR_STATUS_CODE;;
+        response.message = {message: process.env.COUNT_LESS_THAN_EQUAL + maxCount};
     }
 
-    if (response.status !== 200) {
+    if (response.status !== process.env.SUCCESS_RESPONSE_STATUS_CODE) {
         res.status(response.status).json(response.message);
     } else {
-        Album.find(query).skip(offset).limit(count).exec()
+        Album.find(query).sort({year: -1}).skip(offset).limit(count).exec()
             .then((albums) => {
                 makeAllAlbumsResponse(albums, res);
             })
@@ -45,17 +45,17 @@ const getAll = (req, res) => {
 };
 
 const makeErrorResponse = (err, res) => {
-    res.status(500).json({error: err});
+    res.status(process.env.INTERNAL_ERROR_STATUS_CODE).json({error: err});
 };
 
 const makeAllAlbumsResponse = (albums, res) => {
-    res.status(200).json({albums: albums});
+    res.status(process.env.SUCCESS_RESPONSE_STATUS_CODE).json({albums: albums});
 };
 
 
 const addOne = (req, res) => {
     const response = {
-        status: 200,
+        status: process.env.SUCCESS_RESPONSE_STATUS_CODE,
         message: {}
     };
 
@@ -64,12 +64,12 @@ const addOne = (req, res) => {
         const currentYear = new Date().getFullYear();
         const validatedSongs = _getSongsFromBody(req, response);
         if (isNaN(year)) {
-            response.status = 400;
-            response.message = {message: "year should be a number"};
-        } else if (year < 2004 || year > currentYear) {
-            response.status = 400;
-            response.message = {message: "year should be between 2004 and " + currentYear};
-        } else if (response.status === 200) {
+            response.status = process.env.USER_ERROR_STATUS_CODE;
+            response.message = {message: process.env.YEAR_SHOULD_BE_NUMBER};
+        } else if (year < parseInt(process.env.EARLIEST_ALBUM_YEAR) || year > currentYear) {
+            response.status = process.env.USER_ERROR_STATUS_CODE;
+            response.message = {message: process.env.YEAR_ABOVE_2004 + currentYear};
+        } else if (response.status === process.env.SUCCESS_RESPONSE_STATUS_CODE) {
             const newAlbum = {
                 title: req.body.title,
                 year: year,
@@ -87,29 +87,29 @@ const addOne = (req, res) => {
                 });
         }
     } else {
-        response.status = 400;
-        response.message = {message: "Album requires a title and a year"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.ALBUM_HAS_TITLE_YEAR};
     }
-    if (response.status !== 200) {
+    if (response.status !== process.env.SUCCESS_RESPONSE_STATUS_CODE) {
         res.status(response.status).json(response.message);
     }
 };
 
 const makeCreateAlbumResponse = (album, res) => {
-    res.status(201).json(album);
+    res.status(process.env.USER_CREATED_STATUS_CODE).json(album);
 }
 
 const getOne = (req, res) => {
     const albumId = req.params.albumId;
     
     const response = {
-        status: 200,
+        status: process.env.SUCCESS_RESPONSE_STATUS_CODE,
         message: {}
     };
 
     if (!mongoose.isValidObjectId(albumId)) {
-        response.status = 400;
-        response.message = {message: "Invalid album ID provided"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.INVALID_ALBUM_ID};
         res.status(response.status).json(response.message);
     } else {
         Album.findById(albumId).exec()
@@ -126,10 +126,10 @@ const getOne = (req, res) => {
 const makeSingleAlbumCallback = (album, res, albumId) => {
     const response = {};
     if (!album) {
-        response.status = 404;
-        response.message = {message: "Album with id " + albumId + " not found"};
+        response.status = process.env.NOT_FOUND_STATUS_CODE;
+        response.message = {message: process.env.ALBUM_WITH_ID + albumId + process.env.NOT_FOUND};
     } else {
-        response.status = 200;
+        response.status = process.env.SUCCESS_RESPONSE_STATUS_CODE
         response.message = album;
     }
     res.status(response.status).json(response.message);
@@ -139,13 +139,13 @@ const deleteOne = (req, res) => {
     const albumId = req.params.albumId;
 
     const response = {
-        status: 200,
+        status: process.env.SUCCESS_RESPONSE_STATUS_CODE,
         message: {}
     };
 
     if (!mongoose.isValidObjectId(albumId)) {
-        response.status = 400;
-        response.message = {message: "Invalid album ID provided"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.INVALID_ALBUM_ID};
     } else {
         Album.findByIdAndDelete(albumId).exec()
             .then((album) => {
@@ -155,7 +155,7 @@ const deleteOne = (req, res) => {
                 makeErrorResponse(err, res);
             });
     }
-    if (response.status !== 200) {
+    if (response.status !== process.env.SUCCESS_RESPONSE_STATUS_CODE) {
         res.status(response.status).json(response.message);
     }
 };
@@ -163,11 +163,11 @@ const deleteOne = (req, res) => {
 const deleteAlbumCallback = (album, res, albumId) => {
     const response = {};
     if(!album) {
-        response.status = 404;
-        response.message = {message: "Album with id " + albumId + " not found"};
+        response.status = process.env.NOT_FOUND_STATUS_CODE;
+        response.message = {message: process.env.ALBUM_WITH_ID + albumId + process.env.NOT_FOUND};
     } else {
-        response.status = 200;
-        response.message = {message: "Album deleted successfully"};
+        response.status = process.env.SUCCESS_RESPONSE_STATUS_CODE
+        response.message = {message: process.env.ALBUM_DELETED_SUCCESS};
     }
     res.status(response.status).json(response.message);
 }
@@ -176,13 +176,13 @@ const updateOne = (req, res, setAlbumUpdateDetails) => {
     const albumId = req.params.albumId;
     
     const response = {
-        status: 200,
+        status: process.env.SUCCESS_RESPONSE_STATUS_CODE,
         message: {}
     };
 
     if (!mongoose.isValidObjectId(albumId)) {
-        response.status = 400;
-        response.message = {message: "Invalid album ID provided"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.INVALID_ALBUM_ID};
     } else {
         Album.findById(albumId).exec()
             .then((album) => {
@@ -192,7 +192,7 @@ const updateOne = (req, res, setAlbumUpdateDetails) => {
                 makeErrorResponse(err, res);
             });
     }
-    if (response.status !== 200) {
+    if (response.status !== process.env.SUCCESS_RESPONSE_STATUS_CODE) {
         res.status(response.status).json(response.message);
     }
 }
@@ -208,16 +208,16 @@ const partialUpdateOne = (req, res) => {
 
 const getAlbumForUpdate = (album, req, res, albumId, setAlbumUpdateDetails) => {
     const response = {
-        status: 200,
+        status: process.env.SUCCESS_RESPONSE_STATUS_CODE,
         message: {}
     };
     if (!album) {
-        response.status = 404;
-        response.message = {message: "Album with id " + albumId + " not found"};
+        response.status = process.env.NOT_FOUND_STATUS_CODE;
+        response.message = {message: process.env.ALBUM_WITH_ID + albumId + process.env.NOT_FOUND};
     } else {
         setAlbumUpdateDetails(req, album, response);
 
-        if (response.status === 200) {
+        if (response.status === process.env.SUCCESS_RESPONSE_STATUS_CODE) {
             album.save()
                 .then((updatedAlbum) => {
                     makeOneAlbumRespose(updatedAlbum, res);
@@ -227,13 +227,13 @@ const getAlbumForUpdate = (album, req, res, albumId, setAlbumUpdateDetails) => {
                 });
         }
     }
-    if (response.status !== 200) {
+    if (response.status !== process.env.SUCCESS_RESPONSE_STATUS_CODE) {
         res.status(response.status).json(response.message);
     }
 };
 
 const makeOneAlbumRespose = (updatedAlbum, res) => {
-    res.status(200).json(updatedAlbum);
+    res.status(process.env.SUCCESS_RESPONSE_STATUS_CODE).json(updatedAlbum);
 };
 
 const setFullAlbumUpdateDetails = (req, album, response) => {
@@ -241,18 +241,18 @@ const setFullAlbumUpdateDetails = (req, album, response) => {
         const year = parseInt(req.body.year);
         const currentYear = new Date().getFullYear();
         if (isNaN(year)) {
-            response.status = 400;
-            response.message = {message: "year should be a number"};
-        } else if (year < 2004 || year > currentYear) {
-            response.status = 400;
-            response.message = {message: "year should be between 2004 and " + currentYear};
+            response.status = process.env.USER_ERROR_STATUS_CODE;
+            response.message = {message: process.env.YEAR_SHOULD_BE_NUMBER};
+        } else if (year < parseInt(process.env.EARLIEST_ALBUM_YEAR) || year > currentYear) {
+            response.status = process.env.USER_ERROR_STATUS_CODE;
+            response.message = {message: process.env.YEAR_ABOVE_2004 + currentYear};
         } else {
             album.title = req.body.title;
             album.year = year;
         }
     } else {
-        response.status = 400;
-        response.message = {message: "Album requires a title and a year"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.ALBUM_HAS_TITLE_YEAR};
     }
 
     const validatedSongs = _getSongsFromBody(req, response);
@@ -283,13 +283,13 @@ const _validateSong = (song, response) => {
     if (song && song.name && song.writers) {
         const writers = song.writers;
         if (!Array.isArray(writers) || !writers.length) {
-            response.status = 400;
-            response.message = {message: "Writers must be provided as an array of strings"};
+            response.status = process.env.USER_ERROR_STATUS_CODE;
+            response.message = {message: process.env.WRITERS_ARE_STRINGS_ARRAY};
             return false;
         }
     } else {
-        response.status = 500;
-        response.message = {message: "Incomplete data provided. A song requires a name and writers"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.SONG_HAS_NAME_WRITERS};
         return false;
     }
     return true;
@@ -303,11 +303,11 @@ const setPartialAlbumUpdateDetails = (req, album, response) => {
             const year = parseInt(req.body.year);
             const currentYear = new Date().getFullYear();
             if (isNaN(year)) {
-                response.status = 400;
-                response.message = {message: "year should be a number"};
-            } else if (year < 2004 || year > currentYear) {
-                response.status = 400;
-                response.message = {message: "year should be between 2004 and " + currentYear};
+                response.status = process.env.USER_ERROR_STATUS_CODE;
+                response.message = {message: process.env.YEAR_SHOULD_BE_NUMBER};
+            } else if (year < parseInt(process.env.EARLIEST_ALBUM_YEAR) || year > currentYear) {
+                response.status = process.env.USER_ERROR_STATUS_CODE;
+                response.message = {message: process.env.YEAR_ABOVE_2004 + currentYear};
             } else {
                 album.year = year;
             }
@@ -317,8 +317,8 @@ const setPartialAlbumUpdateDetails = (req, album, response) => {
             album.songs = validatedSongs;
         }
     } else {
-        response.status = 400;
-        response.message = {message: "No JSON body provided"};
+        response.status = process.env.USER_ERROR_STATUS_CODE;
+        response.message = {message: process.env.NO_JSON_PROVIDED};
     }
 };
 

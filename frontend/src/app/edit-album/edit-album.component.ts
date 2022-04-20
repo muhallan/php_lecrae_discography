@@ -13,6 +13,11 @@ export class EditAlbumComponent implements OnInit {
 
   album: Album = new Album("", "", 0);
   enableSearch = false;
+
+  successMessage: string = '';
+  errorMessage: string = '';
+  hasSuccess: boolean = false;
+  hasError: boolean = false;
   
   constructor(private router: Router, private albumService: AlbumsService, private _route: ActivatedRoute) { }
 
@@ -35,6 +40,14 @@ export class EditAlbumComponent implements OnInit {
       .then((album) => {
         this.router.navigate(['albums']);
       })
-      .catch(err => console.log(err));
+      .catch(err => {
+        const body = JSON.parse(err._body);
+        const message = body.message;
+
+        this.errorMessage = message;
+        this.hasError = true;
+        this.hasSuccess = false;
+        this.successMessage = '';
+      });
   }
 }
