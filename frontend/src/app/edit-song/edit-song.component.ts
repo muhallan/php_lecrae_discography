@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AlbumsService } from '../_services/albums.service';
 import { Album } from '../_models/album';
 import { Song } from '../_models/song';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-edit-song',
@@ -38,12 +39,35 @@ export class EditSongComponent implements OnInit {
     if (this.albumToEdit._id === '') {
       this.albumService.getAlbum(this.albumId)
         .then(album => this.albumToEdit = album)
-        .catch(err => console.log(err));
+        .catch((error: HttpErrorResponse) => {
+          if (error.status === 404) {
+            this.router.navigate(['page-not-found'])
+          } else {
+            this.hasError = true;
+            this.errorMessage = error.error.message;
+            this.hasSuccess = false;
+            this.successMessage = '';
+          }
+        });
     }
     if (this.songToEdit._id === '') {
       this.albumService.getSong(this.albumId, this.songId)
-        .then(song => this.songToEdit = song)
-        .catch(err => console.log(err));
+        .then(song => {
+          this.songToEdit = song;
+
+          this.song.name = this.songToEdit.name;
+          this.song.writers = this.songToEdit.writers.join(", ");
+        })
+        .catch((error: HttpErrorResponse) => {
+          if (error.status === 404) {
+            this.router.navigate(['page-not-found'])
+          } else {
+            this.hasError = true;
+            this.errorMessage = error.error.message;
+            this.hasSuccess = false;
+            this.successMessage = '';
+          }
+        });
     }
     this.song.name = this.songToEdit.name;
     this.song.writers = this.songToEdit.writers.join(", ");
@@ -63,14 +87,15 @@ export class EditSongComponent implements OnInit {
       .then(song => {
         this.router.navigate(['albums/' + this.albumId]);
       })
-      .catch(err => {
-        const body = JSON.parse(err._body);
-        const message = body.message;
-
-        this.errorMessage = message;
-        this.hasError = true;
-        this.hasSuccess = false;
-        this.successMessage = '';
+      .catch((error: HttpErrorResponse) => {
+        if (error.status === 404) {
+          this.router.navigate(['page-not-found'])
+        } else {
+          this.hasError = true;
+          this.errorMessage = error.error.message;
+          this.hasSuccess = false;
+          this.successMessage = '';
+        }
       });
   }
 }

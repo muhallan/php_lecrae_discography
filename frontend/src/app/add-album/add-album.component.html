@@ -23,10 +23,10 @@
                 <a [routerLink]="['/albums']" class="btn btn-link">Cancel</a>
             </div>
         </form>
-        <div *ngIf="hasSuccess" class="alert alert-success confirmation">
+        <div *ngIf="hasSuccess" class="alert alert-success confirmation" style="margin-top: 30px;">
             Album has been added successfully.<br/> Add another album, or click Cancel to go back.
         </div>
-        <div *ngIf="hasError" class="alert alert-danger">
+        <div *ngIf="hasError" class="alert alert-danger" style="margin-top: 30px;">
             {{errorMessage}}
         </div>
     </div>

@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AlbumsService } from '../_services/albums.service';
 import { Album } from '../_models/album';
 import { Song } from '../_models/song';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-album',
@@ -17,6 +18,8 @@ export class AlbumComponent implements OnInit {
   songs: Song[] = [];
   calcIndex: number = 0;
   enableSearch = false;
+  hasError = false;
+  errorMessage = '';
 
   ngOnInit(): void {
     const id = this._route.snapshot.params['albumId'];
@@ -29,7 +32,14 @@ export class AlbumComponent implements OnInit {
       this.album = album;
       this.songs = album.songs;
     })
-    .catch(error => console.log(error));
+    .catch((error: HttpErrorResponse) => {
+      if (error.status === 404) {
+        this.router.navigate(['page-not-found'])
+      } else {
+        this.hasError = true;
+        this.errorMessage = error.error.message;
+      }
+    });
   }
 
   confirmDeleteSong(songId: string) {
@@ -38,7 +48,14 @@ export class AlbumComponent implements OnInit {
         .then(result => {
           this.fetchAlbum(this.album._id);
         })
-        .catch(err => console.log(err));
+        .catch((error: HttpErrorResponse) => {
+          if (error.status === 404) {
+            this.router.navigate(['page-not-found'])
+          } else {
+            this.hasError = true;
+            this.errorMessage = error.error.message;
+          }
+        });
     }
   }
 

@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm, NgModel } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AlbumsService } from '../_services/albums.service';
 import { Album } from '../_models/album';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-add-song',
@@ -16,7 +17,7 @@ export class AddSongComponent implements OnInit {
     writers: ''
   }
 
-  constructor(private _route: ActivatedRoute, private albumService: AlbumsService) { }
+  constructor(private _route: ActivatedRoute, private albumService: AlbumsService, private router: Router) { }
 
   albumId: string = '';
   albumToEdit: Album = new Album("", "", 0);
@@ -33,7 +34,15 @@ export class AddSongComponent implements OnInit {
     if (this.albumToEdit._id === '') {
       this.albumService.getAlbum(this.albumId)
         .then(album => this.albumToEdit = album)
-        .catch(err => console.log(err));
+        .catch((error: HttpErrorResponse) => {
+          if (error.status === 404) {
+            this.router.navigate(['page-not-found'])
+          } else {
+            this.hasError = true;
+            this.errorMessage = error.error.message;
+            this.hasSuccess = false;
+          }
+        });
     }
   }
 
@@ -52,13 +61,14 @@ export class AddSongComponent implements OnInit {
 
         songForm.reset();
       })
-      .catch(err => {
-        const body = JSON.parse(err._body);
-        const message = body.message;
-
-        this.errorMessage = message;
-        this.hasError = true;
-        this.hasSuccess = false;
+      .catch((error: HttpErrorResponse) => {
+        if (error.status === 404) {
+          this.router.navigate(['page-not-found'])
+        } else {
+          this.hasError = true;
+          this.errorMessage = error.error.message;
+          this.hasSuccess = false;
+        }
       });
   }
 

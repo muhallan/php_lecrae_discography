@@ -15,6 +15,7 @@ import { HeaderComponent } from './header/header.component';
 import { RegisterComponent } from './register/register.component';
 import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './_guards/auth.guard';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 
 @NgModule({
   declarations: [
@@ -27,7 +28,8 @@ import { AuthGuard } from './_guards/auth.guard';
     EditSongComponent,
     HeaderComponent,
     RegisterComponent,
-    LoginComponent
+    LoginComponent,
+    PageNotFoundComponent
   ],
   imports: [
     BrowserModule,
@@ -76,6 +78,14 @@ import { AuthGuard } from './_guards/auth.guard';
       {
         path: 'login',
         component: LoginComponent
+      },
+      {
+        path: 'page-not-found',
+        component: PageNotFoundComponent
+      },
+      {
+        path: '**',
+        redirectTo: 'page-not-found'
       }
     ]),
   ],

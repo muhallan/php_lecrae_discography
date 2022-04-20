@@ -6,7 +6,7 @@
      </a>
      <div class="collapse navbar-collapse" id="nav-content">
         <ul class="ms-auto"></ul>
-        <label style="color: #fff; margin-right: 10px;">Albums per page</label>
+        <label style="color: #fff; margin-right: 10px;" *ngIf="display">Albums per page</label>
         <form class="my-2 my-lg-0 me-4" *ngIf="display">
           <div class="form-group">
             <select [ngModel]="selectedLimit" (ngModelChange)="onLimitChange($event)" class="form-control me-sm-2" name="select_limit">

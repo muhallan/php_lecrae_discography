@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AlbumsService } from '../_services/albums.service';
 import { Album } from '../_models/album';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-albums',
@@ -21,6 +22,9 @@ export class AlbumsComponent implements OnInit {
   offset: number = 0;
   isLastPage = false;
 
+  hasError = false;
+  errorMessage = '';
+
   ngOnInit(): void {
     this.fetchAlbums();
   }
@@ -35,7 +39,14 @@ export class AlbumsComponent implements OnInit {
           this.isLastPage = false;
         }
       })
-      .catch(err => console.log(err));
+      .catch((error: HttpErrorResponse) => {
+        if (error.status === 404) {
+          this._router.navigate(['page-not-found'])
+        } else {
+          this.hasError = true;
+          this.errorMessage = error.error.message;
+        }
+      });
   }
 
   addAlbum(): void {
@@ -48,7 +59,14 @@ export class AlbumsComponent implements OnInit {
       .then(result => {
         this.fetchAlbums();
       })
-      .catch(err => console.log(err));
+      .catch((error: HttpErrorResponse) => {
+        if (error.status === 404) {
+          this._router.navigate(['page-not-found'])
+        } else {
+          this.hasError = true;
+          this.errorMessage = error.error.message;
+        }
+      });
     }
 
   }

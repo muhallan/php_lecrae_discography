@@ -5,14 +5,14 @@
         <form name="form" #songForm="ngForm" (ngSubmit)="songForm.form.valid && addSong(songForm)" novalidate>
             <div class="form-group">
                 <label for="name">Name</label>
-                <input type="text" name="name" class="form-control" #name="ngModel" [(ngModel)]="song.name" required>
+                <input type="text" name="name" class="form-control" #name="ngModel" [ngClass]="{ 'is-invalid': songForm.submitted && !name.valid }" [(ngModel)]="song.name" required>
                 <div *ngIf="isFieldValid(name) || songForm.submitted">
                     <div *ngIf="name.errors && name.errors['required']" class="help-block text-danger">Name is required</div>
                 </div>
             </div>
             <div class="form-group">
                 <label for="writers">Writers (Comma separated)</label>
-                <input type="text" name="writers" class="form-control" #writers="ngModel" [(ngModel)]="song.writers" required>
+                <input type="text" name="writers" class="form-control" #writers="ngModel" [ngClass]="{ 'is-invalid': songForm.submitted && !writers.valid }" [(ngModel)]="song.writers" required>
                 <div *ngIf="isFieldValid(writers) || songForm.submitted">
                     <div *ngIf="writers.errors && writers.errors['required']" class="help-block text-danger">Writers is required</div>
                 </div>
@@ -22,10 +22,10 @@
                 <a [routerLink]="['/albums', albumId]" class="btn btn-link">Cancel</a>
             </div>
         </form>
-        <div *ngIf="hasSuccess" class="alert alert-success confirmation">
+        <div *ngIf="hasSuccess" class="alert alert-success confirmation" style="margin-top: 30px;">
             Song has been added successfully.<br/> Add another song, or click Cancel to go back.
         </div>
-        <div *ngIf="hasError" class="alert alert-danger">
+        <div *ngIf="hasError" class="alert alert-danger" style="margin-top: 30px;">
             {{errorMessage}}
         </div>
     </div>

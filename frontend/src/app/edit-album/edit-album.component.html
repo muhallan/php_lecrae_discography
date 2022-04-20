@@ -5,14 +5,14 @@
         <form name="form" #albumForm="ngForm" (ngSubmit)="albumForm.form.valid && editAlbum()" novalidate>
             <div class="form-group">
                 <label for="title">Title</label>
-                <input type="text" name="title" class="form-control" #title="ngModel" [(ngModel)]="album.title" required>
+                <input type="text" name="title" class="form-control" #title="ngModel" [ngClass]="{ 'is-invalid': albumForm.submitted && !title.valid }" [(ngModel)]="album.title" required>
                 <div *ngIf="isFieldValid(title) || albumForm.submitted">
                     <div *ngIf="title.errors && title.errors['required']" class="help-block text-danger">Title is required</div>
                 </div>
             </div>
             <div class="form-group">
                 <label for="year">Year</label>
-                <input type="text" name="year" class="form-control" #year="ngModel" [(ngModel)]="album.year" pattern="^[0-9]*$" required>
+                <input type="text" name="year" class="form-control" #year="ngModel" [ngClass]="{ 'is-invalid': albumForm.submitted && !year.valid }" [(ngModel)]="album.year" pattern="^[0-9]*$" required>
                 <div *ngIf="isFieldValid(year) || albumForm.submitted">
                     <div *ngIf="year.errors && year.errors['required']" class="help-block text-danger">Year is required</div>
                     <div *ngIf="year.errors && year.errors['pattern']" class="help-block text-danger">Only numbers allowed</div>
@@ -23,10 +23,10 @@
                 <a [routerLink]="['/albums']" class="btn btn-link">Cancel</a>
             </div>
         </form>
-        <div *ngIf="hasSuccess" class="alert alert-success">
+        <div *ngIf="hasSuccess" class="alert alert-success" style="margin-top: 30px;">
             {{successMessage}}
         </div>
-        <div *ngIf="hasError" class="alert alert-danger">
+        <div *ngIf="hasError" class="alert alert-danger" style="margin-top: 30px;">
             {{errorMessage}}
         </div>
     </div>

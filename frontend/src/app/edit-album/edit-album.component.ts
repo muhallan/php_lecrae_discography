@@ -3,6 +3,7 @@ import { NgModel } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlbumsService } from '../_services/albums.service';
 import { Album } from '../_models/album';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-edit-album',
@@ -27,7 +28,16 @@ export class EditAlbumComponent implements OnInit {
     if (this.album._id == '') {
       this.albumService.getAlbum(id)
         .then(album => this.album = album)
-        .catch(err => console.log(err));
+        .catch((error: HttpErrorResponse) => {
+          if (error.status === 404) {
+            this.router.navigate(['page-not-found'])
+          } else {
+            this.hasError = true;
+            this.errorMessage = error.error.message;
+            this.hasSuccess = false;
+            this.successMessage = '';
+          }
+        });
     }
   }
 
@@ -40,14 +50,15 @@ export class EditAlbumComponent implements OnInit {
       .then((album) => {
         this.router.navigate(['albums']);
       })
-      .catch(err => {
-        const body = JSON.parse(err._body);
-        const message = body.message;
-
-        this.errorMessage = message;
-        this.hasError = true;
-        this.hasSuccess = false;
-        this.successMessage = '';
+      .catch((error: HttpErrorResponse) => {
+        if (error.status === 404) {
+          this.router.navigate(['page-not-found'])
+        } else {
+          this.hasError = true;
+          this.errorMessage = error.error.message;
+          this.hasSuccess = false;
+          this.successMessage = '';
+        }
       });
   }
 }

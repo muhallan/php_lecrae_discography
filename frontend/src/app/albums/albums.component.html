@@ -48,4 +48,8 @@
     <div class="text-center">
         <button (click)="addAlbum()" class="btn btn-primary">Add Album</button>
     </div>
+
+    <div *ngIf="hasError" class="alert alert-danger" style="margin-top: 50px;">
+        {{errorMessage}}
+    </div>
 </div>

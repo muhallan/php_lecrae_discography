@@ -1,7 +1,7 @@
 <app-header [display]="enableSearch"></app-header>
 <div ui-view="header" autoscroll="true" class="row justify-content-center" style="margin-top: 40px;">
     <div class="col-md-8 col-md-offset-2">  
-      <div class="album">
+      <div *ngIf="!hasError" class="album">
         <h1>{{album.title}}</h1>
         <div class="year">Released in {{album.year}}</div>
         <div class="items" *ngIf='songs && songs.length; else elseBlock'>
@@ -28,13 +28,16 @@
             </div>
         </ng-template> 
       </div>
-      <div class="row" style="margin-top: 30px;">
+      <div *ngIf="!hasError" class="row" style="margin-top: 30px;">
         <div class="col-10">
           <button (click)="onBack()" class="btn btn-primary">Back</button>
         </div>
         <div class="col">
           <button (click)="addSong(album._id)" class="btn btn-primary">Add Song</button>
         </div>
+      </div>
+      <div *ngIf="hasError" class="alert alert-danger" style="margin-top: 50px;">
+        {{errorMessage}}
       </div>
     </div>
   

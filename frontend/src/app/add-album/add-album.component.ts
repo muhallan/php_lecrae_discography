@@ -1,5 +1,7 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { NgForm, NgModel } from '@angular/forms';
+import { Router } from '@angular/router';
 import { AlbumsService } from '../_services/albums.service';
 
 @Component({
@@ -19,7 +21,7 @@ export class AddAlbumComponent implements OnInit {
   hasSuccess: boolean = false;
   hasError: boolean = false;
 
-  constructor(private albumsService: AlbumsService) { }
+  constructor(private albumsService: AlbumsService, private router: Router) { }
 
   ngOnInit(): void {
   }
@@ -33,13 +35,14 @@ export class AddAlbumComponent implements OnInit {
 
         albumForm.reset();
       })
-      .catch(err => {
-        const body = JSON.parse(err._body);
-        const message = body.message;
-
-        this.errorMessage = message;
-        this.hasError = true;
-        this.hasSuccess = false;
+      .catch((error: HttpErrorResponse) => {
+        if (error.status === 404) {
+          this.router.navigate(['page-not-found'])
+        } else {
+          this.hasError = true;
+          this.errorMessage = error.error.message;
+          this.hasSuccess = false;
+        }
       });
   }
 
