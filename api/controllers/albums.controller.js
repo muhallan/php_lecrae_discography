@@ -20,7 +20,9 @@ const getAll = (req, res) => {
         offset = parseInt(req.query.offset);
     }
     if (req.query && req.query.q) {
-        query = {title: new RegExp(`^${req.query.q}$`, "i")};
+        query = {
+            title: {$regex: req.query.q, $options : 'i'}
+        };
     }
 
     if (isNaN(count) || isNaN(offset)) {
