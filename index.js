@@ -8,8 +8,9 @@ const app = express();
 
 app.use("/api", (req, res, next) => {
     res.header("Access-Control-Allow-Origin", "http://localhost:4200");
-    res.header('Access-Control-Allow-Headers', 'Origin, XRequested-With, Content-Type, Accept');
-    res.header("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE");
+    res.header('Access-Control-Allow-Headers', 'Origin, XRequested-With, Content-Type, Accept, Authorization');
+    res.header("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS");
+    res.header('Access-Control-Allow-Credentials', true);
     next();
 });
 

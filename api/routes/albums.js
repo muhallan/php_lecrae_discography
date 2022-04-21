@@ -3,26 +3,27 @@ const router = express.Router();
 
 const albumsController = require('../controllers/albums.controller');
 const songsController = require('../controllers/songs.controller');
+const authController = require('../controllers/authentication.controller');
 
 router.route("")
-    .get(albumsController.getAll)
-    .post(albumsController.addOne);
+    .get(authController.authenticate, albumsController.getAll)
+    .post(authController.authenticate, albumsController.addOne);
 
 router.route("/:albumId")
-    .get(albumsController.getOne)
-    .delete(albumsController.deleteOne)
-    .put(albumsController.fullUpdateOne)
-    .patch(albumsController.partialUpdateOne);
+    .get(authController.authenticate, albumsController.getOne)
+    .delete(authController.authenticate, albumsController.deleteOne)
+    .put(authController.authenticate, albumsController.fullUpdateOne)
+    .patch(authController.authenticate, albumsController.partialUpdateOne);
 
 router.route("/:albumId/songs")
-    .get(songsController.getAll)
-    .post(songsController.addOne);
+    .get(authController.authenticate, songsController.getAll)
+    .post(authController.authenticate, songsController.addOne);
 
 router.route("/:albumId/songs/:songId")
-    .get(songsController.getOne)
-    .delete(songsController.deleteOne)
-    .put(songsController.fullUpdateOne)
-    .patch(songsController.partialUpdateOne);
+    .get(authController.authenticate, songsController.getOne)
+    .delete(authController.authenticate, songsController.deleteOne)
+    .put(authController.authenticate, songsController.fullUpdateOne)
+    .patch(authController.authenticate, songsController.partialUpdateOne);
     
 
 module.exports = router;

@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
+import { JwtHelperService, JWT_OPTIONS } from '@auth0/angular-jwt';
 
 import { AppComponent } from './app.component';
 import { AlbumsComponent } from './albums/albums.component';
@@ -17,6 +18,7 @@ import { LoginComponent } from './login/login.component';
 import { AuthGuard } from './_guards/auth.guard';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { JoinPipe } from './_pipes/join.pipe';
+import { authInterceptorProviders } from './_helpers/auth.interceptor';
 
 @NgModule({
   declarations: [
@@ -91,7 +93,7 @@ import { JoinPipe } from './_pipes/join.pipe';
       }
     ]),
   ],
-  providers: [AuthGuard],
+  providers: [AuthGuard, JwtHelperService, {provide: JWT_OPTIONS, useValue: JWT_OPTIONS}, authInterceptorProviders],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

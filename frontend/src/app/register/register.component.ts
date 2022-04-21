@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Credentials } from '../_models/credentials';
 import { UsersService } from '../_services/users.service';
 
 @Component({
@@ -11,7 +12,7 @@ import { UsersService } from '../_services/users.service';
 export class RegisterComponent implements OnInit {
 
   enableSearch = false;
-  model: any = {};
+  model: Credentials = new Credentials("", "", "", "");
   loading = false;
 
   successMessage: string = '';

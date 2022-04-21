@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const User = mongoose.model(process.env.USER_MODEL);
 
 addOne = (req, res) => {
@@ -93,8 +94,12 @@ const makeSingleUserCallback = (user, password, res) => {
 
 _handleResultFromPasswordCompare = (isPasswordValid, user, response) => {
     if (isPasswordValid) {
+        const token = jwt.sign({name: user.name}, process.env.JWT_PASSWORD, {expiresIn: parseInt(process.env.TOKEN_EXPIRATION_TIME)});
         response.status = process.env.SUCCESS_RESPONSE_STATUS_CODE;
-        response.message = user;
+        response.message = {
+            message: 'success',
+            token: token
+        };
     } else {
         response.status = process.env.UNAUTHORIZED_STATUS_CODE;
         response.message = {message: process.env.INVALID_PASSWORD_USERNAME};

@@ -1,7 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { LoginResponse } from '../_models/login-response';
 import { User } from '../_models/user';
+import { AuthenticationService } from '../_services/authentication.service';
 import { UsersService } from '../_services/users.service';
 
 @Component({
@@ -18,15 +20,13 @@ export class LoginComponent implements OnInit {
     password: ''
   };
 
-  user: any;
-
   loading = false;
   successMessage: string = '';
   errorMessage: string = '';
   hasSuccess: boolean = false;
   hasError: boolean = false;
 
-  constructor(private userService: UsersService, private router: Router) { }
+  constructor(private userService: UsersService, private router: Router, private _authService: AuthenticationService) { }
 
   ngOnInit(): void {
   }
@@ -34,17 +34,16 @@ export class LoginComponent implements OnInit {
   login() {
     this.loading = true;
     this.userService.login(this.model)
-      .then((user: User) => {
-
+      .then((loginResponse: LoginResponse) => {
         this.loading = false;
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        localStorage.setItem('username', user.username);
-        this.router.navigate(['']);
 
         this.errorMessage = '';
         this.hasError = false;
         this.hasSuccess = true;
         this.successMessage = '';
+
+        this._authService.token = loginResponse.token;
+        this.router.navigate(['']);
       })
       .catch((err: HttpErrorResponse) => {
         this.loading = false;

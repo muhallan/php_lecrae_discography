@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Router } from '@angular/router';
-import { UsersService } from '../_services/users.service';
+import { AuthenticationService } from '../_services/authentication.service';
 
 @Component({
   selector: 'app-header',
@@ -12,7 +12,7 @@ export class HeaderComponent implements OnInit {
   pageTitle: string = "Lecrae Discography";
   
   search_value: string = '';
-  username: string | null = '';
+  name: string | null = '';
   isLoggedIn = false;
 
   selectedLimit = 5;
@@ -26,13 +26,11 @@ export class HeaderComponent implements OnInit {
   @Output()
   limit: EventEmitter<number> = new EventEmitter<number>();
 
-  constructor(private router: Router, private usersService: UsersService) { }
+  constructor(private router: Router, private _authService: AuthenticationService) { }
 
   ngOnInit(): void {
-    this.username = localStorage.getItem('username');
-    if (this.username) {
-      this.isLoggedIn = true;
-    }
+    this.name = this._authService.name;
+    this.isLoggedIn = this._authService.isLoggedIn;
   }
 
   performSearch() {
@@ -40,8 +38,8 @@ export class HeaderComponent implements OnInit {
   }
 
   logout() {
+    this._authService.deleteToken();
     this.router.navigate(['/login']);
-    this.usersService.logout();
   }
 
   onLimitChange(newValue: string) {

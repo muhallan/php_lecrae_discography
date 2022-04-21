@@ -27,23 +27,24 @@
                 </a>
             </div>
         </div>
+
+        <nav aria-label="Albums navigation" style="margin-right: 20px;">
+            <ul class="pagination justify-content-end">
+                <li class="page-item" [ngClass]="{'disabled': offset == 0}">
+                    <a class="page-link" (click)="getPreviousAlbums()" tabindex="-1">Previous</a>
+                </li>
+                <li class="page-item" [ngClass]="{'disabled': isLastPage}">
+                    <a class="page-link" (click)="getNextAlbums()">Next</a>
+                </li>
+            </ul>
+        </nav>
     </div>
+    
     <ng-template #elseBlock>
         <div class="text-center" style="margin-top: 15px;">
           <p>{{ empty_message }}</p>
         </div>
     </ng-template> 
-
-    <nav aria-label="Albums navigation" style="margin-right: 20px;">
-        <ul class="pagination justify-content-end">
-            <li class="page-item" [ngClass]="{'disabled': offset == 0}">
-                <a class="page-link" (click)="getPreviousAlbums()" tabindex="-1">Previous</a>
-            </li>
-            <li class="page-item" [ngClass]="{'disabled': isLastPage}">
-                <a class="page-link" (click)="getNextAlbums()">Next</a>
-            </li>
-        </ul>
-    </nav>
 
     <div class="text-center">
         <button (click)="addAlbum()" class="btn btn-primary">Add Album</button>

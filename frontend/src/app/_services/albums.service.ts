@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { Observable, lastValueFrom } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 
 import { Album, AlbumJSONResponse } from '../_models/album';
 import { Song } from '../_models/song';
@@ -77,11 +77,11 @@ export class AlbumsService {
     return lastValueFrom(this.http.put<Song>(url, songData, this.getHeaders()));
   }
 
-  public deleteAlbum(id: string): Promise<any> {
+  public deleteAlbum(id: string): Promise<Object> {
     return lastValueFrom(this.http.delete(this.albumsUrl + '/' + id));
   }
 
-  public deleteSong(albumId: string, songId: string): Promise<any> {
+  public deleteSong(albumId: string, songId: string): Promise<Object> {
     const url = this.albumsUrl + '/' + albumId + '/songs/' + songId;
     return lastValueFrom(this.http.delete(url));
   }

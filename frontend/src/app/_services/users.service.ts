@@ -4,6 +4,8 @@ import { environment } from 'src/environments/environment';
 import { lastValueFrom } from 'rxjs';
 
 import { User } from '../_models/user';
+import { LoginResponse } from '../_models/login-response';
+import { Credentials } from '../_models/credentials';
 
 
 @Injectable({
@@ -15,8 +17,8 @@ export class UsersService {
 
   constructor(private http: HttpClient) { }
 
-  public createUser(user: User): Promise<User> {
-    return lastValueFrom(this.http.post<User>(this.usersUrl + "register", user, this.getHeaders()));
+  public createUser(credentials: Credentials): Promise<User> {
+    return lastValueFrom(this.http.post<User>(this.usersUrl + "register", credentials, this.getHeaders()));
   }
 
   private getHeaders() {
@@ -26,12 +28,7 @@ export class UsersService {
     return options;
   }
 
-  public login(user: any): Promise<User> {
-    return lastValueFrom(this.http.post<User>(this.usersUrl + 'login', user, this.getHeaders()));
-  }
-
-  public logout() {
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('username');
+  public login(credentials: {username: string, password: string}): Promise<LoginResponse> {
+    return lastValueFrom(this.http.post<LoginResponse>(this.usersUrl + 'login', credentials, this.getHeaders()));
   }
 }
